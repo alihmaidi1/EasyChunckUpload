@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunckUpload", "EasyChunckUpload\EasyChunckUpload.csproj", "{8D5A790F-DE2D-4FD5-BAD5-8FCEF6E0C901}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunkUpload", "EasyChunkUpload\EasyChunkUpload.csproj", "{20993BEA-DFF6-4078-99E4-3DDD4B024F89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,9 @@ Global
 		{8D5A790F-DE2D-4FD5-BAD5-8FCEF6E0C901}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D5A790F-DE2D-4FD5-BAD5-8FCEF6E0C901}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D5A790F-DE2D-4FD5-BAD5-8FCEF6E0C901}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
