@@ -33,27 +33,34 @@ public class ChunkUpload : IChunkUpload
             FileName=fileName
 
         });
-
+        var fileDirectory=Path.Combine(this.uploadSettings.TempFolder,id.ToString());
+        Directory.CreateDirectory(fileDirectory);
         return id;
     
     }
 
-    public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber, byte[] chunkData)
+    public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,Stream fileContent)
     {
 
+        if(fileContent==null||fileContent.Length==0)
+            return ChunkHelper.Fail<Object>("File content is empty.");
+        
         var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
         if(file is null) return ChunkHelper.Fail<Object>("file id is not exists");        
-        if(file.LastChunkNumber>=chunkNumber) return ChunkHelper.Fail<Object>("chunk number is not valid");            
         
-
-
-
+        if(chunkNumber<1 || file.LastChunkNumber>=chunkNumber) return ChunkHelper.Fail<Object>("chunk number is not valid");            
+        
+        string chunkFileName = $"{fileId}_chunk_{chunkNumber}";
+        string chunkPath = Path.Combine(this.uploadSettings.TempFolder,fileId.ToString(), chunkFileName);
+        using(FileStream fs = System.IO.File.Create(chunkPath)){
+            fileContent.Position=0;
+            await fileContent.CopyToAsync(fs);
+        }       
+        file.LastChunkNumber=chunkNumber;
+        file.LastChunkUploadTime=DateTimeOffset.UtcNow;
+        _dbContext.SaveChanges();
         return ChunkHelper.Success<Object>();
-
-
-
     }
-
 
 
 
@@ -119,63 +126,6 @@ public class ChunkUpload : IChunkUpload
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // public string UploadPath{get;set;}
-
-    // public string TempUpload{get;set;}
-
-    // private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1); // Semaphore for asynchronous locking
-    // public int ChunkSize { get; set; }
-
-    // public ChunkUpload(IFileHelper fileHelper,string TempUpload,string UploadPath,int ChunkSize=1024*1024*2){
-
-    //     this.fileHelper=fileHelper;
-    //     this.UploadPath=UploadPath;
-    //     this.TempUpload=TempUpload;
-    //     this.ChunkSize=ChunkSize;
-
-    // }
-
-
-
-
     // public async Task<ChunkResponse<string>> UploadChunk(byte[] fileContent,string uniqueFileName,int chunkNumber,int totalChunks){
 
     //         using (var stream = new MemoryStream(fileContent))
@@ -199,58 +149,7 @@ public class ChunkUpload : IChunkUpload
 
 
 
-    // public  async Task<ChunkResponse<string>> UploadChunk(Stream fileContent,string uniqueFileName, int chunkNumber, int totalChunks){
 
-    //     await _semaphore.WaitAsync();
-    //     try{
-
-    //         string fileName = Path.GetFileNameWithoutExtension(uniqueFileName);
-    //         string newPath = Path.Combine(TempUpload, fileName);
-    //         if(!Directory.Exists(newPath)){
-
-    //             Directory.CreateDirectory(newPath);
-    //         }
-    //         string chunkFileName = $"{fileName}_chunk_{chunkNumber}";
-    //         string chunkPath = Path.Combine(TempUpload,fileName, chunkFileName);
-    //         using(FileStream fs = System.IO.File.Create(chunkPath)){
-
-    //             fileContent.Position=0;
-    //             await fileContent.CopyToAsync(fs);
-
-    //         }   
-
-    //         if(chunkNumber==totalChunks){
-    //             var filename=await ChunksCompletedAsync(Path.GetFileName(uniqueFileName));                
-    //             return ChunkHelper.Success(Enum.UploadStatus.FileUploadCompleted,filename);
-
-    //         }
-
-    //         return ChunkHelper.Success<string>(Enum.UploadStatus.ChunkUploadCompleted);            
-    //         }
-    //         finally
-    //         {
-    //             _semaphore.Release();
-    //         }
-
-
-
-    // }
-
-
-
-
-    // public async Task<string> ChunksCompletedAsync(string fullFileName)
-    // {
-    //     var fileName=Path.GetFileNameWithoutExtension(fullFileName);
-    //     string tempPath = Path.Combine(TempUpload, fileName);
-    //     string[] ChunkFiles = Directory.GetFiles(tempPath)
-    //     .Where(p => p.Contains(fileName))
-    //     .OrderBy(p => Int32.Parse(p.Split($"{fileName}_chunk_")[1]))
-    //     .ToArray();
-    //     string targetPath=Path.Combine(UploadPath, fileName);
-    //     await MergeChunksAsync(fullFileName,ChunkFiles);
-    //     return fullFileName;
-    // }
 
 
 

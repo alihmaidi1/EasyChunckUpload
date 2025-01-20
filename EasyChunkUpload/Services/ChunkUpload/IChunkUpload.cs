@@ -15,7 +15,7 @@ public interface IChunkUpload
 
     Task<Guid> StartUploadAsync(string fileName);
 
-    Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber, byte[] chunkData);
+    Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber, Stream fileContent);
 
 
 
