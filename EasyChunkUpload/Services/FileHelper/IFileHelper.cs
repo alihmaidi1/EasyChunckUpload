@@ -1,4 +1,4 @@
-namespace EasyChunkUpload;
+namespace EasyChunkUpload.Services.FileHelper;
 public interface IFileHelper
 {
     /// <summary>

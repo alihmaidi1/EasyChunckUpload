@@ -5,6 +5,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunkUpload", "EasyChunkUpload\EasyChunkUpload.csproj", "{20993BEA-DFF6-4078-99E4-3DDD4B024F89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunkUploadTest", "EasyChunkUploadTest\EasyChunkUploadTest.csproj", "{8F3E017C-0E6D-47F5-A835-35558F78EEE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{444292AD-FC89-42D6-9164-BA7B9F3725DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +26,13 @@ Global
 		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20993BEA-DFF6-4078-99E4-3DDD4B024F89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F3E017C-0E6D-47F5-A835-35558F78EEE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F3E017C-0E6D-47F5-A835-35558F78EEE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F3E017C-0E6D-47F5-A835-35558F78EEE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F3E017C-0E6D-47F5-A835-35558F78EEE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{444292AD-FC89-42D6-9164-BA7B9F3725DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{444292AD-FC89-42D6-9164-BA7B9F3725DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{444292AD-FC89-42D6-9164-BA7B9F3725DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{444292AD-FC89-42D6-9164-BA7B9F3725DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
