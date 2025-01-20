@@ -10,5 +10,8 @@ public interface IFileHelper
     /// <exception cref="IOException">Thrown when an I/O error occurs during the delete operation.</exception>
     public Task DeleteFilesAsync(string[] filePaths);
 
+
+    public Task RetryIOAsync(Func<Task> action, int maxRetries, int delayMs);
+
     
 }

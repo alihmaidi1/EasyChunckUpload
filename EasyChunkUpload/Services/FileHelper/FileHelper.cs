@@ -16,5 +16,22 @@ public class FileHelper: IFileHelper
     }
 
 
+    public async Task RetryIOAsync(Func<Task> action, int maxRetries, int delayMs)
+    {
+        for (var retry = 0; retry < maxRetries; retry++)
+        {
+            try
+            {
+                await action();
+                return;
+            }
+            catch (IOException) when (retry < maxRetries - 1)
+            {
+                await Task.Delay(delayMs * (retry + 1));
+            }
+        }
+    }
+
+
     
 }

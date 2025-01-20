@@ -9,8 +9,9 @@ namespace EasyChunkUpload.ChunkExtension;
 public class ChunkResponse<T>
 {
 
-    public UploadStatus UploadStatus{get;set;}
+    public string Message{get;set;}
 
+    public bool Status{get;set;}
     public T Data {get;set;}
     
 }
