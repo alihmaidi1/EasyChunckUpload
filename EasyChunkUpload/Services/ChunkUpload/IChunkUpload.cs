@@ -28,6 +28,10 @@ public interface IChunkUpload
 
 
     Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId,string fileName);
+    
+    
+    Task<ChunkResponse<bool>> CancelUpload(Guid fileId);
+
     // /// <summary>
     // /// Uploads a chunk of file content to the server.
     // /// </summary>

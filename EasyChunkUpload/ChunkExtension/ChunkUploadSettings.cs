@@ -1,3 +1,4 @@
+
 namespace EasyChunkUpload.ChunkExtension;
 public class ChunkUploadSettings
 {
@@ -10,5 +11,6 @@ public class ChunkUploadSettings
     
 
     public string CompletedFilesExpiration { get; set; }
+
 
 }

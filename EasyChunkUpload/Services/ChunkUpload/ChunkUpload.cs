@@ -4,6 +4,9 @@ using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.FileHelper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
+
+
 namespace EasyChunkUpload.Services.ChunkUpload;
 
 public class ChunkUpload : IChunkUpload
@@ -15,13 +18,13 @@ public class ChunkUpload : IChunkUpload
 
     private readonly IFileHelper _fileHelper;
     
-    
-    public ChunkUpload(DbContext dbContext,IFileHelper fileHelper){
+    public ChunkUpload(DbContext dbContext,IFileHelper fileHelper,IOptions<ChunkUploadSettings> chunkSetting){
 
+        
         _dbContext=dbContext;
-        _fileHelper=fileHelper;
-
-        this.TempFolder=Path.Combine("wwwroot",TempFolder);
+        _fileHelper=fileHelper;        
+        this.TempFolder=chunkSetting.Value.TempFolder;
+    
     }
 
     public async Task<Guid> StartUploadAsync(string fileName)
@@ -165,5 +168,11 @@ public class ChunkUpload : IChunkUpload
         return ChunkHelper.Success("this is data",file.LastChunkNumber);
     }
 
-    
+    public async Task<ChunkResponse<bool>> CancelUpload(Guid fileId)
+    {
+
+        await _dbContext.Set<FileModel>().Where(x=>x.Id==fileId).ExecuteDeleteAsync();
+        Directory.Delete(Path.Combine(this.TempFolder,fileId.ToString()));
+        return ChunkHelper.Success("Upload Canceled Successfully",true);
+    }
 }
