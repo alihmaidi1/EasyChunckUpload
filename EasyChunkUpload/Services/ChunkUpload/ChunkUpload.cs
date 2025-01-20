@@ -10,18 +10,18 @@ public class ChunkUpload : IChunkUpload
 {
     private readonly DbContext _dbContext;
     
+    private string TempFolder;
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new();
-    private readonly ChunkUploadSettings uploadSettings;
 
     private readonly IFileHelper _fileHelper;
-
-    private static readonly object _directoryLock = new();
-
-    public ChunkUpload(DbContext dbContext,IFileHelper fileHelper,IOptions<ChunkUploadSettings> options){
+    
+    
+    public ChunkUpload(DbContext dbContext,IFileHelper fileHelper){
 
         _dbContext=dbContext;
-        uploadSettings=options.Value??new ChunkUploadSettings();
         _fileHelper=fileHelper;
+
+        this.TempFolder=Path.Combine("wwwroot",TempFolder);
     }
 
     public async Task<Guid> StartUploadAsync(string fileName)
@@ -33,7 +33,7 @@ public class ChunkUpload : IChunkUpload
             FileName=fileName
 
         });
-        var fileDirectory=Path.Combine(this.uploadSettings.TempFolder,id.ToString());
+        var fileDirectory=Path.Combine(this.TempFolder,id.ToString());
         Directory.CreateDirectory(fileDirectory);
         return id;
     
@@ -51,7 +51,7 @@ public class ChunkUpload : IChunkUpload
         if(chunkNumber<1 || file.LastChunkNumber>=chunkNumber) return ChunkHelper.Fail<Object>("chunk number is not valid");            
         
         string chunkFileName = $"{fileId}_chunk_{chunkNumber}";
-        string chunkPath = Path.Combine(this.uploadSettings.TempFolder,fileId.ToString(), chunkFileName);
+        string chunkPath = Path.Combine(this.TempFolder,fileId.ToString(), chunkFileName);
         using(FileStream fs = System.IO.File.Create(chunkPath)){
             fileContent.Position=0;
             await fileContent.CopyToAsync(fs);
@@ -63,6 +63,28 @@ public class ChunkUpload : IChunkUpload
     }
 
 
+    public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,byte[] fileContent){
+
+            using (var stream = new MemoryStream(fileContent))
+            {
+                return await UploadChunkAsync(fileId,chunkNumber,stream);
+            }
+
+    }
+
+    public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,IEnumerable<byte> fileContent)
+    {
+
+            byte[] bytes = fileContent.ToArray();
+            using (var stream = new MemoryStream(bytes))
+            {
+
+                return await UploadChunkAsync(fileId,chunkNumber,stream);
+            }
+    }
+
+
+
 
 
     private async Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths)
@@ -72,15 +94,9 @@ public class ChunkUpload : IChunkUpload
         await fileLock.WaitAsync();
         try{
 
-            var directory = Path.GetDirectoryName(destinationFilePath)!;
-            lock(_directoryLock){
-                if(!Directory.Exists(destinationFilePath)){
 
-                    Directory.CreateDirectory(destinationFilePath);
-                }
-            }
 
-            var tempFilePath = Path.Combine(directory, $"{Guid.NewGuid()}.tmp");
+            var tempFilePath = Path.Combine(this.TempFolder,$"{Guid.NewGuid()}.tmp");
             await using (var destinationStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.SequentialScan| FileOptions.Asynchronous))
             {
 
@@ -123,29 +139,18 @@ public class ChunkUpload : IChunkUpload
     }
 
 
+    public async Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId,string fileName){
+
+        var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
+        if(file is null) return ChunkHelper.Fail<string>("file is not exist");
+        string LastFileName=Path.Combine(this.TempFolder,fileName);
+        string[] chunks=Directory.GetFiles(Path.Combine(this.TempFolder,fileName)).OrderBy(x=>x.Split($"{fileId}_chunk_")[1]).ToArray();
+        await MergeChunksAsync(LastFileName,chunks);
+        await _dbContext.Set<FileModel>().Where(x=>x.Id==fileId).ExecuteDeleteAsync();                                         
+        return ChunkHelper.Success<string>("this is your file name",LastFileName);
 
 
-
-    // public async Task<ChunkResponse<string>> UploadChunk(byte[] fileContent,string uniqueFileName,int chunkNumber,int totalChunks){
-
-    //         using (var stream = new MemoryStream(fileContent))
-    //         {
-    //             return await UploadChunk(stream,uniqueFileName, chunkNumber, totalChunks);
-    //         }
-
-    // }
-
-    // public async Task<ChunkResponse<string>> UploadChunk(IEnumerable<byte> fileContent,string uniqueFileName,int chunkNumber,int totalChunks)
-    // {
-
-
-    //         byte[] bytes = fileContent.ToArray();
-    //         using (var stream = new MemoryStream(bytes))
-    //         {
-
-    //             return await UploadChunk(stream,uniqueFileName, chunkNumber, totalChunks);
-    //         }
-    // }
+    }
 
 
 
@@ -153,7 +158,12 @@ public class ChunkUpload : IChunkUpload
 
 
 
+    public async Task<ChunkResponse<int>> GetLastChunk(Guid fileId){
 
+        var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
+        if(file is null) return ChunkHelper.Fail<int>("file is not exist");
+        return ChunkHelper.Success("this is data",file.LastChunkNumber);
+    }
 
-
+    
 }
