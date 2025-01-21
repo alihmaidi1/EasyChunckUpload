@@ -66,6 +66,9 @@ public class ChunkUpload : IChunkUpload
 
     public async Task<Guid> StartUploadAsync(string fileName)
     {
+
+        
+        ChunkHelper.IsValidFileName(fileName);
         var id=Guid.NewGuid();
         await _dbContext.Set<FileModel>().AddAsync(new FileModel{
             
