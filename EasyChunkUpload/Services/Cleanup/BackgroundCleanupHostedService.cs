@@ -1,25 +1,36 @@
+using EasyChunkUpload.ChunkExtension;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 namespace EasyChunkUpload.Services.Cleanup;
 
-public class BackgroundCleanupHostedService: IHostedService
+public class BackgroundCleanupHostedService: BackgroundService
 {
-    private Timer _timer;
 
 
+    private readonly ICleanupService cleanupService;
+
+    private int IntervalTime{get;set;}
 
 
+    public BackgroundCleanupHostedService(ICleanupService cleanupService,IOptions<ChunkUploadSettings> options){
 
+        this.cleanupService=cleanupService;
+        IntervalTime=options.Value.CleanupInterval;
 
-
-
-
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        throw new NotImplementedException();
+
+        using PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromSeconds(this.IntervalTime));
+
+        while(!stoppingToken.IsCancellationRequested&&await timer.WaitForNextTickAsync(stoppingToken)){
+
+            await cleanupService.CleanUpExpiredUploadsAsync();
+
+        }
+
+
+
     }
 }

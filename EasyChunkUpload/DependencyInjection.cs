@@ -15,10 +15,10 @@ public static class DependencyInjection
     {
 
         services.Configure(chunkUploadSettings);        
-
         services.AddSingleton<IFileHelper,FileHelper>();
         services.AddSingleton<IChunkUpload,ChunkUpload>();
         services.AddSingleton<ICleanupService,CleanupService>();
+        services.AddHostedService<BackgroundCleanupHostedService>();
         return services;
 
     }
