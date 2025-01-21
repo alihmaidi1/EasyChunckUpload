@@ -67,7 +67,7 @@ public class ChunkUploadSettings
     public int CleanupInterval { get; set; }=60*60;
     
     /// <summary>
-    /// Gets or sets the retention period in days for completed files before automatic deletion
+    /// Gets or sets the retention period in Seconds for completed files before automatic deletion
     /// </summary>
     /// <value>
     /// <para>Integer value representing days to retain completed files</para>

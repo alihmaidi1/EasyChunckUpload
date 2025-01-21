@@ -73,6 +73,7 @@ public class ChunkUpload : IChunkUpload
             FileName=fileName
 
         });
+        await _dbContext.SaveChangesAsync();
         var fileDirectory=Path.Combine(this.TempFolder,id.ToString());
         Directory.CreateDirectory(fileDirectory);
         return id;
