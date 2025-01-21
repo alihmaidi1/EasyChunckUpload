@@ -10,7 +10,7 @@ public class ChunkUploadSettings
     public string CleanupInterval { get; set; }
     
 
-    public string CompletedFilesExpiration { get; set; }
+    public int CompletedFilesExpiration { get; set; }
 
 
 }

@@ -1,5 +1,6 @@
 using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Services.ChunkUpload;
+using EasyChunkUpload.Services.Cleanup;
 using EasyChunkUpload.Services.FileHelper;
 using Microsoft.Extensions.DependencyInjection;
 namespace EasyChunkUpload;
@@ -17,6 +18,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IFileHelper,FileHelper>();
         services.AddSingleton<IChunkUpload,ChunkUpload>();
+        services.AddSingleton<ICleanupService,CleanupService>();
         return services;
 
     }
