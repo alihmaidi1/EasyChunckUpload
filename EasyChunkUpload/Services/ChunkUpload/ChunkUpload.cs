@@ -12,7 +12,7 @@ namespace EasyChunkUpload.Services.ChunkUpload;
 public class ChunkUpload : IChunkUpload
 {
     private readonly DbContext _dbContext;
-    
+
     private string TempFolder;
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new();
 
@@ -26,6 +26,43 @@ public class ChunkUpload : IChunkUpload
         this.TempFolder=chunkSetting.Value.TempFolder;
     
     }
+
+    /// <summary>
+    /// Initializes a new chunked file upload session and generates a unique session identifier
+    /// </summary>
+    /// <param name="fileName">
+    /// The original name of the file being uploaded (including extension).
+    /// Will be sanitized to remove special characters and path information.
+    /// </param>
+    /// <returns>
+    /// <para>A <see cref="Guid"/> representing the upload session ID that must be used for subsequent chunk uploads.</para>
+    /// <para>This session ID will expire after configured retention period if not completed.</para>
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when:
+    /// <list type="bullet">
+    /// <item><description>fileName is null or empty</description></item>
+    /// <item><description>fileName contains invalid characters</description></item>
+    /// <item><description>fileName length exceeds system limits</description></item>
+    /// </list>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when:
+    /// <list type="bullet">
+    /// <item><description>Maximum concurrent upload sessions reached</description></item>
+    /// <item><description>Storage provider initialization failed</description></item>
+    /// </list>
+    /// </exception>
+    /// <remarks>
+    /// <para>This method performs the following operations:</para>
+    /// <list type="number">
+    /// <item><description>Validates and sanitizes file name</description></item>
+    /// <item><description>Creates temporary storage directory for chunks</description></item>
+    /// <item><description>Generates initial metadata entry</description></item>
+    /// <item><description>Starts session expiration timer</description></item>
+    /// </list>
+    /// <para>The generated session ID should be stored client-side for subsequent chunk uploads.</para>
+    /// </remarks>
 
     public async Task<Guid> StartUploadAsync(string fileName)
     {
@@ -41,6 +78,29 @@ public class ChunkUpload : IChunkUpload
         return id;
     
     }
+
+    /// <summary>
+    /// Processes and stores an individual chunk of a file during chunked upload
+    /// </summary>
+    /// <param name="fileId">The unique identifier for the ongoing file upload session</param>
+    /// <param name="chunkNumber">The sequential number of the chunk (1-based index)</param>
+    /// <param name="fileContent">The binary content of the file chunk to be stored</param>
+    /// <returns>
+    /// <para>A ChunkResponse containing:</para>
+    /// <para>- Current upload status (Success/Error)</para>
+    /// <para>- Processed chunk number</para>
+    /// <para>- Error details if operation failed</para>
+    /// <para>- Additional metadata in the Result object</para>
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when:
+    /// <list type="bullet">
+    /// <item><description>chunkNumber is less than 1</description></item>
+    /// <item><description>fileContent contains no data</description></item>
+    /// </list>
+    /// </exception>
+    /// <exception cref="FileNotFoundException">Thrown when no upload session exists for the specified fileId</exception>
+    /// <exception cref="InvalidOperationException">Thrown when chunk processing order is violated</exception>
 
     public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,Stream fileContent)
     {
@@ -65,6 +125,28 @@ public class ChunkUpload : IChunkUpload
         return ChunkHelper.Success<Object>();
     }
 
+    /// <summary>
+    /// Processes and stores an individual chunk of a file during chunked upload
+    /// </summary>
+    /// <param name="fileId">The unique identifier for the ongoing file upload session</param>
+    /// <param name="chunkNumber">The sequential number of the chunk (1-based index)</param>
+    /// <param name="fileContent">The binary content of the file chunk to be stored</param>
+    /// <returns>
+    /// <para>A ChunkResponse containing:</para>
+    /// <para>- Current upload status (Success/Error)</para>
+    /// <para>- Processed chunk number</para>
+    /// <para>- Error details if operation failed</para>
+    /// <para>- Additional metadata in the Result object</para>
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when:
+    /// <list type="bullet">
+    /// <item><description>chunkNumber is less than 1</description></item>
+    /// <item><description>fileContent contains no data</description></item>
+    /// </list>
+    /// </exception>
+    /// <exception cref="FileNotFoundException">Thrown when no upload session exists for the specified fileId</exception>
+    /// <exception cref="InvalidOperationException">Thrown when chunk processing order is violated</exception>
 
     public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,byte[] fileContent){
 
@@ -74,6 +156,29 @@ public class ChunkUpload : IChunkUpload
             }
 
     }
+
+    /// <summary>
+    /// Processes and stores an individual chunk of a file during chunked upload
+    /// </summary>
+    /// <param name="fileId">The unique identifier for the ongoing file upload session</param>
+    /// <param name="chunkNumber">The sequential number of the chunk (1-based index)</param>
+    /// <param name="fileContent">The binary content of the file chunk to be stored</param>
+    /// <returns>
+    /// <para>A ChunkResponse containing:</para>
+    /// <para>- Current upload status (Success/Error)</para>
+    /// <para>- Processed chunk number</para>
+    /// <para>- Error details if operation failed</para>
+    /// <para>- Additional metadata in the Result object</para>
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when:
+    /// <list type="bullet">
+    /// <item><description>chunkNumber is less than 1</description></item>
+    /// <item><description>fileContent contains no data</description></item>
+    /// </list>
+    /// </exception>
+    /// <exception cref="FileNotFoundException">Thrown when no upload session exists for the specified fileId</exception>
+    /// <exception cref="InvalidOperationException">Thrown when chunk processing order is violated</exception>
 
     public async Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,IEnumerable<byte> fileContent)
     {
@@ -142,6 +247,19 @@ public class ChunkUpload : IChunkUpload
     }
 
 
+    /// <summary>
+    /// Finalizes the chunked file upload process and merges uploaded chunks into the completed file
+    /// </summary>
+    /// <param name="fileId">The unique identifier for the file upload session</param>
+    /// <param name="fileName">The final name to give the completed file (including extension)</param>
+    /// <returns>
+    /// <para>A ChunkResponse containing:</para>
+    /// <para>- Success status of the merge operation</para>
+    /// <para>- Final file path/URL in the Result property</para>
+    /// <para>- Error message if operation failed</para>
+    /// </returns>
+    /// <exception cref="FileNotFoundException">Thrown when no chunks exist for the specified fileId</exception>
+    /// <exception cref="InvalidOperationException">Thrown when chunks are missing or corrupted</exception>
     public async Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId,string fileName){
 
         var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
