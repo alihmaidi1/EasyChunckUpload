@@ -1,9 +1,6 @@
-using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.ChunkUpload;
-using EasyChunkUpload.Services.FileHelper;
 using EasyChunkUploadTest.Base;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -20,8 +17,7 @@ public class StartUploadTests: BaseTest
     {
         
         // Given        
-        var mockFileHelper = new Mock<IFileHelper>();  
-        var service = new ChunkUpload(this.DbMock.Object, mockFileHelper.Object, Options.Create(this.Settings));           
+        var service = new ChunkUpload(MockFileService.Object,DbMock.Object, MockFileHelper.Object, Options.Create(this.Settings));           
         
         // When
         var sessionId =  await service.StartUploadAsync(fileName);             
@@ -53,8 +49,7 @@ public class StartUploadTests: BaseTest
     [InlineData("  ")]
     public async Task StartUpload_InvalidFileName_ThrowsException(string fileName)
     {
-        var service = new ChunkUpload(this.DbMock.Object, new Mock<IFileHelper>().Object, Options.Create(this.Settings));
-        
+        var service = new ChunkUpload(MockFileService.Object,DbMock.Object, MockFileHelper.Object, Options.Create(this.Settings));        
         await Assert.ThrowsAsync<ArgumentException>(() => service.StartUploadAsync(fileName));
     }
 

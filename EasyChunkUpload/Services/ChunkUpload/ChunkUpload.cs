@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.FileHelper;
+using EasyChunkUpload.Services.FileService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -18,9 +19,10 @@ public class ChunkUpload : IChunkUpload
 
     private readonly IFileHelper _fileHelper;
     
-    public ChunkUpload(DbContext dbContext,IFileHelper fileHelper,IOptions<ChunkUploadSettings> chunkSetting){
+    private readonly IFileService fileService;
+    public ChunkUpload(IFileService fileService,DbContext dbContext,IFileHelper fileHelper,IOptions<ChunkUploadSettings> chunkSetting){
 
-        
+        this.fileService=fileService;
         _dbContext=dbContext;
         _fileHelper=fileHelper;        
         this.TempFolder=chunkSetting.Value.TempFolder;
@@ -290,11 +292,20 @@ public class ChunkUpload : IChunkUpload
         return ChunkHelper.Success("this is data",file.LastChunkNumber);
     }
 
-    public async Task<ChunkResponse<bool>> CancelUpload(Guid fileId)
+    public async Task<ChunkResponse<bool>> CancelUploadAsync(Guid fileId)
     {
 
-        await _dbContext.Set<FileModel>().Where(x=>x.Id==fileId).ExecuteDeleteAsync();
-        Directory.Delete(Path.Combine(this.TempFolder,fileId.ToString()));
+        if(await fileService.IsExists(fileId)){
+
+        await fileService.DeleteFile(fileId);
+        await _fileHelper.DeleteDirectory(Path.Combine(this.TempFolder,fileId.ToString()));
         return ChunkHelper.Success("Upload Canceled Successfully",true);
+            
+        }else{
+
+        return ChunkHelper.Fail("File is not exists",false);
+
+        }
+        
     }
 }

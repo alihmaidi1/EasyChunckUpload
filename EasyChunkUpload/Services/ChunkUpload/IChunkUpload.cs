@@ -6,6 +6,9 @@ public interface IChunkUpload
 
     Task<Guid> StartUploadAsync(string fileName);
 
+    Task<ChunkResponse<int>> GetLastChunk(Guid fileId); 
+
+
     Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber, Stream fileContent);
 
 
@@ -13,14 +16,12 @@ public interface IChunkUpload
 
 
 
-    Task<ChunkResponse<int>> GetLastChunk(Guid fileId); 
-
 
 
 
     Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId,string fileName);
     
     
-    Task<ChunkResponse<bool>> CancelUpload(Guid fileId);
+    Task<ChunkResponse<bool>> CancelUploadAsync(Guid fileId);
 
 }

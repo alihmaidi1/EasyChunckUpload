@@ -15,6 +15,14 @@ public class FileHelper: IFileHelper
         }
     }
 
+    public async Task<bool> DeleteDirectory(string path){
+
+
+        Directory.Delete(path,true);
+        return true;
+
+    }
+
 
     public async Task RetryIOAsync(Func<Task> action, int maxRetries, int delayMs)
     {
