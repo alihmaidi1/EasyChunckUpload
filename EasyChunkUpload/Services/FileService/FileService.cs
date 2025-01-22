@@ -25,6 +25,14 @@ public class FileService : IFileService
         return true;
     }
 
+    public async Task<FileModel?> GetFile(Guid fileId){
+
+
+        return await dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
+        
+    }
+
+
     public async Task<bool> IsExists(Guid fileId){
 
 

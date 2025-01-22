@@ -201,7 +201,7 @@ public class ChunkUpload : IChunkUpload
 
 
 
-    private async Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths)
+    protected virtual async  Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths)
     {
         
         var fileLock = _fileLocks.GetOrAdd(destinationFilePath, _ => new SemaphoreSlim(1, 1));
@@ -266,14 +266,14 @@ public class ChunkUpload : IChunkUpload
     /// </returns>
     /// <exception cref="FileNotFoundException">Thrown when no chunks exist for the specified fileId</exception>
     /// <exception cref="InvalidOperationException">Thrown when chunks are missing or corrupted</exception>
-    public async Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId,string fileName){
+    public async Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId){
 
-        var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
+        var file=await fileService.GetFile(fileId);
         if(file is null) return ChunkHelper.Fail<string>("file is not exist");
-        string LastFileName=Path.Combine(this.TempFolder,fileName);
-        string[] chunks=Directory.GetFiles(Path.Combine(this.TempFolder,fileName)).OrderBy(x=>x.Split($"{fileId}_chunk_")[1]).ToArray();
+        string LastFileName=Path.Combine(TempFolder,file.FileName);
+        string[] chunks=Directory.GetFiles(Path.Combine(this.TempFolder,fileId.ToString())).OrderBy(x=>x.Split($"{fileId}_chunk_")[1]).ToArray();
         await MergeChunksAsync(LastFileName,chunks);
-        await _dbContext.Set<FileModel>().Where(x=>x.Id==fileId).ExecuteDeleteAsync();                                         
+        await fileService.DeleteFile(fileId);
         return ChunkHelper.Success<string>("this is your file name",LastFileName);
 
 

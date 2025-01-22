@@ -19,7 +19,7 @@ public interface IChunkUpload
 
 
 
-    Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId,string fileName);
+    Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId);
     
     
     Task<ChunkResponse<bool>> CancelUploadAsync(Guid fileId);

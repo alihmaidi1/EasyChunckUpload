@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EasyChunkUpload.ChunkExtension;
-using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.ChunkUpload;
 using EasyChunkUploadTest.Base;
 using Microsoft.Extensions.Options;
