@@ -114,10 +114,10 @@ public class ChunkUpload : IChunkUpload
         if(fileContent==null||fileContent.Length==0)
             return ChunkHelper.Fail<Object>("File content is empty.");
         
-        var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
+        var file=await fileService.GetFile(fileId);
         if(file is null) return ChunkHelper.Fail<Object>("file id is not exists");        
         
-        if(chunkNumber<1 || file.LastChunkNumber>=chunkNumber) return ChunkHelper.Fail<Object>("chunk number is not valid");            
+        if(!ChunkHelper.IsValidChunkNumber(chunkNumber,file,Path.Combine(TempFolder,fileId.ToString()))) return ChunkHelper.Fail<Object>("chunk number is not valid");            
         
         string chunkFileName = $"{fileId}_chunk_{chunkNumber}";
         string chunkPath = Path.Combine(this.TempFolder,fileId.ToString(), chunkFileName);
@@ -127,7 +127,7 @@ public class ChunkUpload : IChunkUpload
         }       
         file.LastChunkNumber=chunkNumber;
         file.LastChunkUploadTime=DateTimeOffset.UtcNow;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return ChunkHelper.Success<Object>();
     }
 

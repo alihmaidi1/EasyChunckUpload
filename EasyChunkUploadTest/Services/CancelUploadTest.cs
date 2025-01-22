@@ -45,6 +45,8 @@ public class CancelUploadTest:BaseTest
 
         //Then
         Assert.False(IsCanceled.Status);
+        MockFileService.Verify(x=>x.DeleteFile(fileId),Times.Never);
+        MockFileHelper.Verify(f=>f.DeleteDirectory(tempDir),Times.Never);
        
         
     }

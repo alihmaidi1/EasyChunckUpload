@@ -25,6 +25,7 @@ public class ChunkUploadCompletedTest:BaseTest
         var fileId = Guid.NewGuid();
         var tempPath = Path.Combine(this.Settings.TempFolder, fileId.ToString());     
         Directory.CreateDirectory(tempPath);     
+        
         MockFileService.Setup(x=>x.GetFile(fileId)).ReturnsAsync(new FileModel{
 
             Id=fileId,
