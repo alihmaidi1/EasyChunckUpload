@@ -16,7 +16,7 @@ public class ChunkUploadWhenMergeService : ChunkUpload
     public ChunkUploadWhenMergeService(IFileService fileService, DbContext dbContext, IFileHelper fileHelper, IOptions<ChunkUploadSettings> chunkSetting) : base(fileService, dbContext, fileHelper, chunkSetting)
     {
     }
-    protected override async  Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths){
+    public override async  Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths){
 
         
     }

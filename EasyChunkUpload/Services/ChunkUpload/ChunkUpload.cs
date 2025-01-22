@@ -201,7 +201,7 @@ public class ChunkUpload : IChunkUpload
 
 
 
-    protected virtual async  Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths)
+    public virtual async  Task MergeChunksAsync(string destinationFilePath, string[] chunkFilePaths)
     {
         
         var fileLock = _fileLocks.GetOrAdd(destinationFilePath, _ => new SemaphoreSlim(1, 1));
