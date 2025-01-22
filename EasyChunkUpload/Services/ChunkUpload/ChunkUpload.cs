@@ -287,10 +287,12 @@ public class ChunkUpload : IChunkUpload
 
     public async Task<ChunkResponse<int>> GetLastChunk(Guid fileId){
 
-        var file=await _dbContext.Set<FileModel>().FirstOrDefaultAsync(x=>x.Id==fileId);
-        if(file is null) return ChunkHelper.Fail<int>("file is not exist");
-        return ChunkHelper.Success("this is data",file.LastChunkNumber);
+        var file=await fileService.GetLastChunk(fileId);
+        if(!file.Status) return ChunkHelper.Fail<int>("file is not exist");
+        return ChunkHelper.Success("this is data",file.Data);
     }
+
+
 
     public async Task<ChunkResponse<bool>> CancelUploadAsync(Guid fileId)
     {
