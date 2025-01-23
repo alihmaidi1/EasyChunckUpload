@@ -36,7 +36,9 @@ dotnet add package  EasyChunkUpload
 ```
 # Requirements <a name="requirements"></a>
 - .NET 9.0 SDK or later
-- Entity Framework Core 9.x
+-  Microsoft.EntityFrameworkCore (>= 9.0.1)
+-   Microsoft.Extensions.DependencyInjection (>= 9.0.1)
+-    Microsoft.Extensions.Hosting (>= 9.0.1) 
 
 ## Quick Start <a name="quick-start"></a>
  **1. Configure Services**
