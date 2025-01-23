@@ -4,6 +4,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>AliHmaidi</Authors>
+    <Company>AliHmaidi</Company>
+    <Description>Easy File Upload In Chunk</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/alihmaidi1/EasyChunckUpload</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alihmaidi1/EasyChunckUpload</RepositoryUrl>
+    <Copyright>AliHmaidi</Copyright>
   </PropertyGroup>
 
 
