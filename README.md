@@ -12,7 +12,6 @@ A robust implementation for handling large file uploads using chunking strategy 
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
 - [API Documentation](#api-documentation)
-- [Error Handling](#error-handling)
 - [Performance](#performance)
 - [Contributing](#contributing)
 - [License](#license)
