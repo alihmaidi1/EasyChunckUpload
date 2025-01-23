@@ -112,10 +112,13 @@ Response Model
 ```
 public class ChunkResponse<T>
 {
-
+    /// <summary>Detailed message for failures or success</summary>
     public string Message{get;set;}
 
+    /// <summary>Operation  status</summary>
     public bool Status{get;set;}
+
+    /// <summary>Result payload</summary>
     public T Data {get;set;}
     
 }
@@ -146,3 +149,7 @@ Optimization Tips :
  ## License <a name="license"></a>
 
 MIT License - See LICENSE for full text.
+
+📫 Contact: [Ali Hmaidi] - alihmaidi095@gmail.com
+
+🔗 Repository: https://github.com/alihmaidi1/EasyChunckUpload
