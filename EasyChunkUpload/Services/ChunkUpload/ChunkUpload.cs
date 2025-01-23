@@ -117,10 +117,8 @@ public class ChunkUpload : IChunkUpload
         var file=await fileService.GetFile(fileId);
         if(file is null) return ChunkHelper.Fail<Object>("file id is not exists");        
         
-        if(!ChunkHelper.IsValidChunkNumber(chunkNumber,file,Path.Combine(TempFolder,fileId.ToString()))) return ChunkHelper.Fail<Object>("chunk number is not valid");            
-        
-        string chunkFileName = $"{fileId}_chunk_{chunkNumber}";
-        string chunkPath = Path.Combine(this.TempFolder,fileId.ToString(), chunkFileName);
+        if(!ChunkHelper.IsValidChunkNumber(chunkNumber,file,Path.Combine(TempFolder,fileId.ToString()))) return ChunkHelper.Fail<Object>("chunk number is not valid");                    
+        string chunkPath = Path.Combine(this.TempFolder,fileId.ToString(), ChunkHelper.GetChunkNamePattern(fileId.ToString(),chunkNumber.ToString()));
         using(FileStream fs = System.IO.File.Create(chunkPath)){
             fileContent.Position=0;
             await fileContent.CopyToAsync(fs);
@@ -271,7 +269,7 @@ public class ChunkUpload : IChunkUpload
         var file=await fileService.GetFile(fileId);
         if(file is null) return ChunkHelper.Fail<string>("file is not exist");
         string LastFileName=Path.Combine(TempFolder,file.FileName);
-        string[] chunks=Directory.GetFiles(Path.Combine(this.TempFolder,fileId.ToString())).OrderBy(x=>x.Split($"{fileId}_chunk_")[1]).ToArray();
+        string[] chunks=Directory.GetFiles(Path.Combine(this.TempFolder,fileId.ToString())).OrderBy(x=>x.Split(ChunkHelper.GetChunkNamePattern(fileId.ToString()))[1]).ToArray();
         if(GetLostChunkNumber(chunks,fileId).GetAwaiter().GetResult().Count==0){
 
             await MergeChunksAsync(LastFileName,chunks);
@@ -327,7 +325,7 @@ public class ChunkUpload : IChunkUpload
         var path=Path.Combine(TempFolder,fileId.ToString());
         var existsChunk=Directory
         .GetFiles(path)
-        .Select(x=>x.Split($"{fileId}_chunk_")[1])
+        .Select(x=>x.Split(ChunkHelper.GetChunkNamePattern(fileId.ToString()))[1])
         .Select(x=>Int32.Parse(x))
         .Order()
         .ToList();
@@ -356,7 +354,7 @@ public class ChunkUpload : IChunkUpload
     private async Task<List<int>> GetLostChunkNumber(string[] existsChunk,Guid fileId){
         
         var existsChunkAsInt=existsChunk
-        .Select(x=>x.Split($"{fileId}_chunk_")[1])
+        .Select(x=>x.Split(ChunkHelper.GetChunkNamePattern(fileId.ToString()))[1])
         .Select(x=>Int32.Parse(x))
         .ToList();        
         List<int> lostChunk=new List<int>();

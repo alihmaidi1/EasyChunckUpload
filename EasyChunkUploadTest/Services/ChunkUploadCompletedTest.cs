@@ -1,3 +1,4 @@
+using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.ChunkUpload;
 using EasyChunkUpload.Services.FileHelper;
@@ -58,8 +59,8 @@ public class ChunkUploadCompletedTest:BaseTest
         var fileId = Guid.NewGuid();
         var tempPath = Path.Combine(this.Settings.TempFolder, fileId.ToString());     
         Directory.CreateDirectory(tempPath);   
-        File.WriteAllText(Path.Combine(tempPath,$"{fileId}_chunk_1"), "test1");
-        File.WriteAllText(Path.Combine(tempPath,$"{fileId}_chunk_4"), "test4");
+        File.WriteAllText(Path.Combine(tempPath,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"1")), "test1");
+        File.WriteAllText(Path.Combine(tempPath,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"4")), "test4");
         
         MockFileService.Setup(x=>x.GetFile(fileId)).ReturnsAsync(new FileModel{
 

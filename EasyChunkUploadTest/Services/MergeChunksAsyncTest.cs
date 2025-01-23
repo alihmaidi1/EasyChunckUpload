@@ -1,3 +1,4 @@
+using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Services.ChunkUpload;
 using EasyChunkUpload.Services.FileHelper;
 using EasyChunkUploadTest.Base;
@@ -27,7 +28,7 @@ public class MergeChunksAsyncTest:BaseTest
 
         var chunkPaths = chunks.Select((c, i) =>
         {
-            var path = $"testfile_chunk_{i + 1}";
+            var path =ChunkHelper.GetChunkNamePattern("testfile",$"{i+1}");
             File.WriteAllText(path, c);
             return path;
         }).ToArray();

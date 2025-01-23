@@ -1,4 +1,5 @@
 
+using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.ChunkUpload;
 using EasyChunkUploadTest.Base;
@@ -17,9 +18,9 @@ public class GetLostChunkTest: BaseTest
         var fileId = Guid.NewGuid();
         var folderName=Path.Combine(Settings.TempFolder,fileId.ToString());
         Directory.CreateDirectory(folderName);        
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_1"), "test1");
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_3"), "test3");
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_6"), "test6");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"1")), "test1");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"3")), "test3");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"6")), "test6");
 
         MockFileService.Setup(x=>x.GetFile(fileId)).ReturnsAsync(new FileModel{
 

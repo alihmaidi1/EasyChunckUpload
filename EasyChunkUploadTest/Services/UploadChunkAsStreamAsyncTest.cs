@@ -1,3 +1,4 @@
+using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Model;
 using EasyChunkUpload.Services.ChunkUpload;
 using EasyChunkUploadTest.Base;
@@ -20,11 +21,11 @@ public class UploadChunkAsStreamAsyncTest: BaseTest
         var fileId = Guid.NewGuid();
         var folderName=Path.Combine(Settings.TempFolder,fileId.ToString());
         Directory.CreateDirectory(folderName);        
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_1"), "test1");
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_3"), "test3");
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_4"), "test4");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"1")), "test1");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"3")), "test3");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"4")), "test4");
 
-        string chunkFileName = $"{fileId}_chunk_{chunkNumber}";
+        // string chunkFileName = $"{fileId}_chunk_{chunkNumber}";
         MockFileService.Setup(x=>x.GetFile(fileId)).ReturnsAsync(new FileModel{
 
             Id=fileId,
@@ -42,7 +43,7 @@ public class UploadChunkAsStreamAsyncTest: BaseTest
         // Assert
         Assert.True(result.Status);
         DbMock.Verify(db => db.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        Assert.True(File.Exists(Path.Combine(Settings.TempFolder,fileId.ToString(),chunkFileName)));
+        Assert.True(File.Exists(Path.Combine(Settings.TempFolder,fileId.ToString(),ChunkHelper.GetChunkNamePattern(fileId.ToString(),$"{chunkNumber}"))));
 
 
     }
@@ -86,9 +87,9 @@ public class UploadChunkAsStreamAsyncTest: BaseTest
 
         var folderName=Path.Combine(Settings.TempFolder,fileId.ToString());
         Directory.CreateDirectory(folderName);        
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_1"), "test1");
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_3"), "test2");
-        File.WriteAllText(Path.Combine(folderName,$"{fileId}_chunk_4"), "test4");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"1")), "test1");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"3")), "test2");
+        File.WriteAllText(Path.Combine(folderName,ChunkHelper.GetChunkNamePattern(fileId.ToString(),"4")), "test4");
 
 
 

@@ -1,4 +1,3 @@
-using EasyChunkUpload.Enum;
 using EasyChunkUpload.Model;
 
 namespace EasyChunkUpload.ChunkExtension;
@@ -43,6 +42,12 @@ public class ChunkHelper
       }
 
 
+      public static string GetChunkNamePattern(string fileId,string chunkNumber=""){
+
+
+            return $"{fileId}_chunk_{chunkNumber}";
+      }
+
       public static bool IsValidChunkNumber(int chunkNumber,FileModel file,string folderPath){
 
             // invalid chunk number
@@ -55,7 +60,7 @@ public class ChunkHelper
             
             List<int> chunks=Directory
             .GetFiles(Path.Combine(folderPath))
-            .Select(x=>x.Split($"{file.Id}_chunk_")[1])
+            .Select(x=>x.Split(GetChunkNamePattern(file.Id.ToString()))[1])
             .Select(x=>Int32.Parse(x))        
             .ToList();
 
