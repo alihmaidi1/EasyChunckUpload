@@ -29,10 +29,10 @@ A robust implementation for handling large file uploads using chunking strategy 
 ## Installation <a name="installation"></a>
 ```bash
 # Package Manager
-Install-Package ChunkUploadService
+Install-Package  EasyChunkUpload 
 
 # .NET CLI
-dotnet add package ChunkUploadService
+dotnet add package  EasyChunkUpload 
 ```
 # Requirements <a name="requirements"></a>
 - .NET 9.0 SDK or later
