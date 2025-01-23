@@ -20,6 +20,9 @@ public class MergeChunksAsyncTest:BaseTest
             Options.Create(this.Settings)
         );
 
+
+        
+
         var chunks = new[]
         {
             "Chunk1Content",
@@ -39,6 +42,39 @@ public class MergeChunksAsyncTest:BaseTest
         // // Assert
         Assert.True(File.Exists("uploads/final.txt"));
         Assert.Equal("Chunk1ContentChunk2Content", File.OpenText("uploads/final.txt").ReadToEnd());
+    }
+
+    [Fact]
+    public async Task MergeChunks_Performance_CreatesMergedFile()
+    {
+
+        var service = new ChunkUpload(
+            this.MockFileService.Object,
+            this.DbMock.Object,
+            new FileHelper(),
+            Options.Create(this.Settings)
+        );
+
+
+        string expectedContent="";
+        var chunks=Enumerable.Range(1,1000).Select(x=>{
+
+            var path =ChunkHelper.GetChunkNamePattern("testfile",$"{x+1}");
+            File.WriteAllText(path, $"test{x}");
+            expectedContent+=$"test{x}";
+            return path;
+
+        }).ToArray();
+
+        // Act
+        await service.MergeChunksAsync("uploads/final.txt", chunks);
+
+
+        // Assert
+        Assert.True(File.Exists("uploads/final.txt"));                
+        Assert.Equal(expectedContent, File.OpenText("uploads/final.txt").ReadToEnd());
+
+
     }
     
 }

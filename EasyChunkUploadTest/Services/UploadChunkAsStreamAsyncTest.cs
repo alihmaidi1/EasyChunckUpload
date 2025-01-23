@@ -49,6 +49,41 @@ public class UploadChunkAsStreamAsyncTest: BaseTest
     }
 
     [Fact]
+
+    public async Task UploadChunk_Performance_SavesChunk()
+    {
+
+        // Given        
+        var fileId = Guid.NewGuid();
+        var folderName=Path.Combine(Settings.TempFolder,fileId.ToString());
+        Directory.CreateDirectory(folderName);        
+
+        MockFileService.Setup(x=>x.GetFile(fileId)).ReturnsAsync(new FileModel{
+
+            Id=fileId,
+            FileName="test.txt",
+            LastChunkNumber=0
+        });
+        var service = new ChunkUpload(MockFileService.Object,DbMock.Object, MockFileHelper.Object, Options.Create(this.Settings));                   
+        using var chunkData = new MemoryStream();
+        chunkData.SetLength(2048);
+
+        // Act
+        var tasks=Enumerable.Range(1,1000).Select(x=> service.UploadChunkAsync(fileId, x, chunkData)).ToList();
+        var results = await Task.WhenAll(tasks);
+        int counter=1;
+        Assert.All(results, r => 
+        {
+            Assert.True(r.Status);
+        Assert.True(File.Exists(Path.Combine(Settings.TempFolder,fileId.ToString(),ChunkHelper.GetChunkNamePattern(fileId.ToString(),$"{counter++}"))));
+
+        });
+
+
+    }
+
+
+    [Fact]
     public async Task UploadChunk_InvalidFileId_ReturnsError()
     {
         var fileId = Guid.NewGuid();
