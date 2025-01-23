@@ -11,7 +11,7 @@ public class ChunkUploadFlowTests:IClassFixture<DatabaseFixture>
 
     private readonly DatabaseFixture _fixture;
     
-        private readonly ChunkUploadSettings _settings = new() { TempFolder = "test_uploads" };
+        private readonly ChunkUploadSettings _settings = new() { TempFolder = "/home/ali/Desktop/ChunckUpload" };
     public ChunkUploadFlowTests(DatabaseFixture _fixture){
 
         this._fixture=_fixture;
@@ -62,5 +62,52 @@ public class ChunkUploadFlowTests:IClassFixture<DatabaseFixture>
         Assert.False(Directory.Exists(Path.Combine(_settings.TempFolder, fileId.ToString())));
     }
 
+    [Fact]
+    public async Task Upload_ShouldFail_WithMissingChunks()
+    {
+        var sut = CreateSUT();
+        var fileId = await sut.StartUploadAsync("incomplete.txt");
+        
+        // Upload chunks 1 and 3 (skip 2)
+        await sut.UploadChunkAsync(fileId, 1, new byte[1024]);
+        await sut.UploadChunkAsync(fileId, 3, new byte[1024]);
+
+        var result = await sut.ChunkUploadCompleted(fileId);
+        
+        Assert.False(result.Status);
+        Assert.Contains("you should first upload lost chunk", result.Message);
+    }
+
+    [Fact]
+    public async Task CancelUpload_ShouldCleanup_Resources()
+    {
+        var sut = CreateSUT();
+        var fileId = await sut.StartUploadAsync("cancel_test.txt");
+        await sut.UploadChunkAsync(fileId, 1, new byte[512]);
+        
+        var cancelResult = await sut.CancelUploadAsync(fileId);
+        
+        Assert.True(cancelResult.Status);
+        Assert.False(Directory.Exists(Path.Combine(_settings.TempFolder, fileId.ToString())));
+        Assert.False(sut.GetLastChunk(fileId).GetAwaiter().GetResult().Status);
+    }
+
+
+ [Fact]
+    public async Task GetLostChunks_ShouldIdentify_MissingSequences()
+    {
+        var sut = CreateSUT();
+        var fileId = await sut.StartUploadAsync("sequence_test.bin");
+        
+        // Upload non-sequential chunks
+        await sut.UploadChunkAsync(fileId, 1, new byte[1024]);
+        await sut.UploadChunkAsync(fileId, 3, new byte[1024]);
+        await sut.UploadChunkAsync(fileId, 5, new byte[1024]);
+
+        var lostChunks = await sut.GetLostChunkNumber(fileId);
+        
+        Assert.True(lostChunks.Status);
+        Assert.Equal(new List<int> {2, 4}, lostChunks.Data);
+    }
 
 }
