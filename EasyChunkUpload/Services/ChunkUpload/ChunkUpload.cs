@@ -232,6 +232,7 @@ public class ChunkUpload : IChunkUpload
 
                 }
                 File.Move(tempFilePath, destinationFilePath, overwrite: true);
+                
                 await _fileHelper.DeleteFilesAsync(chunkFilePaths);
                 
 
@@ -274,6 +275,7 @@ public class ChunkUpload : IChunkUpload
 
             await MergeChunksAsync(LastFileName,chunks);
             await fileService.DeleteFile(fileId);
+            Directory.Delete(Path.Combine(this.TempFolder,fileId.ToString()));
             return ChunkHelper.Success<string>("this is your file name",LastFileName);
 
         }else{

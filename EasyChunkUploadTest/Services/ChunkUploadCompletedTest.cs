@@ -49,7 +49,7 @@ public class ChunkUploadCompletedTest:BaseTest
 
 
 
-        Assert.Empty(Directory.GetFiles(tempPath));
+        Assert.False(Directory.Exists(tempPath));
     }
 
 [Fact]
