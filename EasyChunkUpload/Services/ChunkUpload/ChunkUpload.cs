@@ -272,9 +272,16 @@ public class ChunkUpload : IChunkUpload
         if(file is null) return ChunkHelper.Fail<string>("file is not exist");
         string LastFileName=Path.Combine(TempFolder,file.FileName);
         string[] chunks=Directory.GetFiles(Path.Combine(this.TempFolder,fileId.ToString())).OrderBy(x=>x.Split($"{fileId}_chunk_")[1]).ToArray();
-        await MergeChunksAsync(LastFileName,chunks);
-        await fileService.DeleteFile(fileId);
-        return ChunkHelper.Success<string>("this is your file name",LastFileName);
+        if(GetLostChunkNumber(chunks,fileId).GetAwaiter().GetResult().Count==0){
+
+            await MergeChunksAsync(LastFileName,chunks);
+            await fileService.DeleteFile(fileId);
+            return ChunkHelper.Success<string>("this is your file name",LastFileName);
+
+        }else{
+
+            return ChunkHelper.Fail<string>("you should first upload lost chunk"); 
+        }
 
 
     }
@@ -311,6 +318,8 @@ public class ChunkUpload : IChunkUpload
         
     }
 
+
+
     public async Task<ChunkResponse<List<int>>> GetLostChunkNumber(Guid fileId){
 
         var file=await fileService.GetFile(fileId);
@@ -342,6 +351,34 @@ public class ChunkUpload : IChunkUpload
         return ChunkHelper.Success("this is lost chunk",lostChunk);
 
     }
+
+
+    private async Task<List<int>> GetLostChunkNumber(string[] existsChunk,Guid fileId){
+        
+        var existsChunkAsInt=existsChunk
+        .Select(x=>x.Split($"{fileId}_chunk_")[1])
+        .Select(x=>Int32.Parse(x))
+        .ToList();        
+        List<int> lostChunk=new List<int>();
+        int counter=1;
+        for (int i = 0; i < existsChunkAsInt.Count;)
+        {
+            if(existsChunkAsInt[i]==counter){
+
+                i++;
+                counter++;
+            }else{
+
+                lostChunk.Add(counter);
+                counter++;
+
+            }            
+        }
+        
+        return lostChunk;
+
+    }
+
 
 
 }

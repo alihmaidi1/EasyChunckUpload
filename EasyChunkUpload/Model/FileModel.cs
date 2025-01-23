@@ -14,6 +14,7 @@ public class FileModel
 
     public DateTimeOffset LastChunkUploadTime{get;set;}=DateTimeOffset.UtcNow;
 
+    
     public int? ExpiredAfter{get;set;}
 
     

@@ -51,6 +51,37 @@ public class ChunkUploadCompletedTest:BaseTest
         Assert.Empty(Directory.GetFiles(tempPath));
     }
 
+[Fact]
+    public async Task CompleteUpload_ValidId_NeedUploadLostChunk()
+    {
+        // Arrange
+        var fileId = Guid.NewGuid();
+        var tempPath = Path.Combine(this.Settings.TempFolder, fileId.ToString());     
+        Directory.CreateDirectory(tempPath);   
+        File.WriteAllText(Path.Combine(tempPath,$"{fileId}_chunk_1"), "test1");
+        File.WriteAllText(Path.Combine(tempPath,$"{fileId}_chunk_4"), "test4");
+        
+        MockFileService.Setup(x=>x.GetFile(fileId)).ReturnsAsync(new FileModel{
+
+            Id=fileId,
+            FileName="test.txt"
+
+        });
+        var service = new ChunkUploadWhenMergeService(
+            MockFileService.Object,
+            DbMock.Object,
+            this.fileHelper,
+            Options.Create(this.Settings)
+        );
+
+        // Act
+        var result = await service.ChunkUploadCompleted(fileId);
+        
+        // Assert
+        Assert.False(result.Status);
+    }
+
+
     [Fact]
     public async Task CompleteUpload_UnValidId_ReturnsFinalPath()
     {
