@@ -74,5 +74,67 @@ dotnet add package ChunkUploadService
 | `CompletedFilesExpiration` | `int` | `60*60*24*7` | how Many (Seconds) time File While be expired after upload lastest chunk  |
 
 
+### API Documentation <a name="api-documentation"></a>
+Core Methods
+```
+public interface IChunkUpload
+{
+
+    Task<Guid> StartUploadAsync(string fileName);
 
 
+    Task<ChunkResponse<int>> GetLastChunk(Guid fileId);
+
+
+    Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber, Stream fileContent);
+
+
+    Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,byte[] fileContent);
+
+
+    Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId);
+
+
+    Task<ChunkResponse<List<int>>> GetLostChunkNumber(Guid fileId);
+
+    
+    Task<ChunkResponse<bool>> CancelUploadAsync(Guid fileId);
+
+}
+```
+Response Model
+```
+public class ChunkResponse<T>
+{
+
+    public string Message{get;set;}
+
+    public bool Status{get;set;}
+    public T Data {get;set;}
+    
+}
+```
+### Performance <a name="performance"></a>
+Optimization Tips :
+
+ **Chunk Sizes**: Use 5-10MB chunks for optimal throughput
+ 
+ **File Locking**: Monitor SemaphoreSlim usage
+ 
+ ### Contributing <a name="contributing"></a>
+    Fork the repository
+
+    Create feature branch:
+    git checkout -b feature/your-feature
+
+    Commit changes:
+    git commit -m 'Add awesome feature'
+
+    Push to branch:
+    git push origin feature/your-feature
+
+    Open a Pull Request
+    
+ ### License <a name="license"></a>
+
+MIT License - See LICENSE for full text.
