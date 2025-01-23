@@ -1,35 +1,34 @@
-# Chunk Upload Library
+# ChunkUpload Service
 
-[![NuGet Version](https://img.shields.io/nuget/v/ChunkUpload.svg)](https://www.nuget.org/packages/ChunkUpload/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/yourusername/chunk-upload/build.yml)](https://github.com/yourusername/chunk-upload/actions)
-[![Code Coverage](https://img.shields.io/codecov/c/github/yourusername/chunk-upload)](https://codecov.io/gh/yourusername/chunk-upload)
+[![NuGet Version](https://img.shields.io/nuget/v/ChunkUploadService.svg?style=flat-square)](https://www.nuget.org/packages/ChunkUploadService/)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![.NET Core](https://img.shields.io/badge/.NET-9.0%2B-blue.svg?style=flat-square)](https://dotnet.microsoft.com/)
 
-A robust .NET library for handling large file uploads using chunking strategy with resume capabilities and automatic cleanup.
+A robust implementation for handling large file uploads using chunking strategy with resumable capabilities and concurrent processing support.
 
 ## Table of Contents
-
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
-- [Storage Providers](#storage-providers)
-- [API Reference](#api-reference)
-- [Testing](#testing)
+- [API Documentation](#api-documentation)
+- [Error Handling](#error-handling)
+- [Performance](#performance)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Features <a name="features"></a>
-
-- Chunked file uploads with configurable chunk size
-- Resume interrupted uploads
-- Automatic cleanup of orphaned chunks
-- Multiple storage provider support
-- Progress tracking
-- File validation and integrity checks
-- Cross-platform compatibility
+- 🚀 **Resumable Uploads** - Continue interrupted uploads
+- ⚡ **Chunk Validation** - Automatic chunk order verification
+- 🔒 **Concurrency Control** - Thread-safe operations with SemaphoreSlim
+- 📁 **Atomic Merging** - Temp file strategy for data integrity
+- 📊 **Progress Tracking** - Real-time upload status monitoring
+- 🧹 **Auto-Cleanup** - Configurable temp file retention
 
 ## Installation <a name="installation"></a>
-
 ```bash
-dotnet add package ChunkUpload
+# Package Manager
+Install-Package ChunkUploadService
+
+# .NET CLI
+dotnet add package ChunkUploadService
