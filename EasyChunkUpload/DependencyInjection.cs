@@ -1,3 +1,5 @@
+using System.Data.Common;
+using System.Reflection;
 using EasyChunkUpload.ChunkExtension;
 using EasyChunkUpload.Services.ChunkUpload;
 using EasyChunkUpload.Services.Cleanup;
@@ -12,10 +14,23 @@ public static class DependencyInjection
     /// <summary>
     /// Extension methods to add and configure the Easy Chunk Upload service.
     /// </summary>
-    public static IServiceCollection AddEasyChunkUploadConfiguration(this IServiceCollection services,Action<ChunkUploadSettings> chunkUploadSettings)
+    public static IServiceCollection AddEasyChunkUploadConfiguration(this IServiceCollection services,ChunkUploadSettings chunkUploadSettings)
     {
+        
+        services.Configure<ChunkUploadSettings>(options=>{
 
-        services.Configure(chunkUploadSettings);        
+            options.CleanupInterval=chunkUploadSettings.CleanupInterval;
+            options.CompletedFilesExpiration=chunkUploadSettings.CompletedFilesExpiration;
+            options.TempFolder=chunkUploadSettings.TempFolder;
+
+
+        });
+
+        if(!Directory.Exists(chunkUploadSettings.TempFolder))   {
+
+            Directory.CreateDirectory(chunkUploadSettings.TempFolder);
+
+        } 
         services.AddSingleton<IFileHelper,FileHelper>();
         services.AddSingleton<IChunkUpload,ChunkUpload>();
         services.AddSingleton<IFileService,FileService>();

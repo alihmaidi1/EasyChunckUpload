@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunkUpload", "EasyChun
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunkUploadTest", "EasyChunkUploadTest\EasyChunkUploadTest.csproj", "{795F47BD-424D-4250-9519-18ADA174DAF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyChunkUpload.IntegrationTest", "EasyChunkUpload.IntegrationTest\EasyChunkUpload.IntegrationTest.csproj", "{2EAB78C0-FF92-48BD-B370-C09688D85FD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,5 +42,9 @@ Global
 		{795F47BD-424D-4250-9519-18ADA174DAF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{795F47BD-424D-4250-9519-18ADA174DAF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{795F47BD-424D-4250-9519-18ADA174DAF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EAB78C0-FF92-48BD-B370-C09688D85FD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EAB78C0-FF92-48BD-B370-C09688D85FD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EAB78C0-FF92-48BD-B370-C09688D85FD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EAB78C0-FF92-48BD-B370-C09688D85FD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

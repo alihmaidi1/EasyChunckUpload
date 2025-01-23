@@ -1,4 +1,3 @@
-
 namespace EasyChunkUpload.ChunkExtension;
 public class ChunkUploadSettings
 {
