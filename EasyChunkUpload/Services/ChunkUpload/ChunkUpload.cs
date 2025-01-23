@@ -310,4 +310,38 @@ public class ChunkUpload : IChunkUpload
         }
         
     }
+
+    public async Task<ChunkResponse<List<int>>> GetLostChunkNumber(Guid fileId){
+
+        var file=await fileService.GetFile(fileId);
+        if(file is null) return ChunkHelper.Fail<List<int>>("file is not exists");
+        var path=Path.Combine(TempFolder,fileId.ToString());
+        var existsChunk=Directory
+        .GetFiles(path)
+        .Select(x=>x.Split($"{fileId}_chunk_")[1])
+        .Select(x=>Int32.Parse(x))
+        .Order()
+        .ToList();
+        
+        List<int> lostChunk=new List<int>();
+        int counter=1;
+        for (int i = 0; i < existsChunk.Count;)
+        {
+            if(existsChunk[i]==counter){
+
+                i++;
+                counter++;
+            }else{
+
+                lostChunk.Add(counter);
+                counter++;
+
+            }            
+        }
+        
+        return ChunkHelper.Success("this is lost chunk",lostChunk);
+
+    }
+
+
 }
