@@ -55,7 +55,13 @@ dotnet add package  EasyChunkUpload
     // Add other dependencies
 }
 ```
- **2. Basic Usage Example**
+**2. add to dbcontext
+```dbcontext{
+dbset<filemodel> filemodel{get;};
+}
+```
+
+ **3. Basic Usage Example**
 ```public class UploadController : ControllerBase
 {
     private readonly IChunkUpload _chunkUpload;
