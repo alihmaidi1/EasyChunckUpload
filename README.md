@@ -1,6 +1,6 @@
 # ChunkUpload Service
 
-[![NuGet Version](https://img.shields.io/nuget/v/ChunkUploadService.svg?style=flat-square)](https://www.nuget.org/packages/EasyChunkUpload/)
+[![NuGet Version](https://img.shields.io/nuget/v/EasyChunkUpload.svg?style=flat-square)](https://www.nuget.org/api/v2/package/EasyChunkUpload)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![.NET Core](https://img.shields.io/badge/.NET-9.0%2B-blue.svg?style=flat-square)](https://dotnet.microsoft.com/)
 
