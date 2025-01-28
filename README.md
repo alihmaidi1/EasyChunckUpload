@@ -55,7 +55,7 @@ dotnet add package  EasyChunkUpload
     // Add other dependencies
 }
 ```
-**2. add to dbcontext
+**2. add to dbcontext**
 ```dbcontext{
 dbset<filemodel> filemodel{get;};
 }
