@@ -1,0 +1,5 @@
+#nullable enable
+EasyChunkUpload.Persistence.EntityFrameworkCore.DependencyInjection
+EasyChunkUpload.Persistence.EntityFrameworkCore.UploadDbContext
+EasyChunkUpload.Persistence.EntityFrameworkCore.UploadDbContext.UploadDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<EasyChunkUpload.Persistence.EntityFrameworkCore.UploadDbContext!>! options) -> void
+static EasyChunkUpload.Persistence.EntityFrameworkCore.DependencyInjection.UseEntityFrameworkStore(this EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder! builder, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder!>! configure) -> EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder!

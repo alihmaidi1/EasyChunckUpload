@@ -26,6 +26,17 @@ public static class DependencyInjection
             .Validate(static value => value.MaxChunkCount > 0, "MaxChunkCount must be positive.")
             .Validate(static value => value.IncompleteUploadRetention > TimeSpan.Zero, "IncompleteUploadRetention must be positive.")
             .Validate(static value => value.CompletionLeaseDuration > TimeSpan.Zero, "CompletionLeaseDuration must be positive.")
+            .Validate(static value => value.CleanupLeaseDuration > TimeSpan.Zero, "CleanupLeaseDuration must be positive.")
+            .Validate(static value => value.LeaseRenewalInterval > TimeSpan.Zero, "LeaseRenewalInterval must be positive.")
+            .Validate(
+                static value => value.LeaseRenewalInterval < value.CompletionLeaseDuration,
+                "LeaseRenewalInterval must be shorter than CompletionLeaseDuration.")
+            .Validate(
+                static value => value.LeaseRenewalInterval < value.CleanupLeaseDuration,
+                "LeaseRenewalInterval must be shorter than CleanupLeaseDuration.")
+            .Validate(
+                static value => value.ExpiredSessionMetadataRetention > TimeSpan.Zero,
+                "ExpiredSessionMetadataRetention must be positive.")
             .ValidateOnStart();
 
         services.TryAddSingleton(TimeProvider.System);

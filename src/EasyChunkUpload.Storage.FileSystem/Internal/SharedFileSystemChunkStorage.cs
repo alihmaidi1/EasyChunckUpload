@@ -9,11 +9,13 @@ internal sealed class SharedFileSystemChunkStorage : IChunkStorage
 {
     private readonly string _rootPath;
     private readonly int _bufferSize;
+    private readonly bool _flushToDisk;
 
     public SharedFileSystemChunkStorage(IOptions<FileSystemStorageOptions> options)
     {
         _rootPath = Path.GetFullPath(options.Value.RootPath);
         _bufferSize = options.Value.BufferSize;
+        _flushToDisk = options.Value.FlushToDisk;
         Directory.CreateDirectory(GetChunksRoot());
         Directory.CreateDirectory(GetCompletedRoot());
     }
@@ -184,6 +186,7 @@ internal sealed class SharedFileSystemChunkStorage : IChunkStorage
             }
 
             await destination.FlushAsync(cancellationToken);
+            FlushToDisk(destination, cancellationToken);
             return (length, Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant());
         }
         finally
@@ -236,6 +239,7 @@ internal sealed class SharedFileSystemChunkStorage : IChunkStorage
             }
 
             await destination.FlushAsync(cancellationToken);
+            FlushToDisk(destination, cancellationToken);
             return (length, Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant());
         }
         finally
@@ -277,6 +281,17 @@ internal sealed class SharedFileSystemChunkStorage : IChunkStorage
         {
             File.Delete(path);
         }
+    }
+
+    private void FlushToDisk(FileStream stream, CancellationToken cancellationToken)
+    {
+        if (!_flushToDisk)
+        {
+            return;
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        stream.Flush(flushToDisk: true);
     }
 
     private static void TryDeleteEmptyDirectory(string path)

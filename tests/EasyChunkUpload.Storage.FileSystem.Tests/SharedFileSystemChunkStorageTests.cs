@@ -55,6 +55,52 @@ public sealed class SharedFileSystemChunkStorageTests : IDisposable
         Assert.Equal(Hash(allBytes), completed.Sha256);
     }
 
+    [Fact]
+    public async Task WriteChunkAsync_HashMismatchRemovesTemporaryFile()
+    {
+        await using var provider = CreateProvider();
+        var storage = provider.GetRequiredService<IChunkStorage>();
+        var bytes = "content"u8.ToArray();
+
+        var result = await storage.WriteChunkAsync(
+            Guid.NewGuid(),
+            0,
+            new MemoryStream(bytes),
+            bytes.Length,
+            new string('a', 64),
+            CancellationToken.None);
+
+        Assert.Equal(ChunkStorageWriteOutcome.HashMismatch, result.Outcome);
+        Assert.Empty(Directory.EnumerateFiles(_root, "*", SearchOption.AllDirectories));
+    }
+
+    [Fact]
+    public async Task WriteChunkAsync_DifferentContentAtSameIndexReturnsConflict()
+    {
+        await using var provider = CreateProvider();
+        var storage = provider.GetRequiredService<IChunkStorage>();
+        var uploadId = Guid.NewGuid();
+        var first = "first"u8.ToArray();
+        var second = "other"u8.ToArray();
+        await storage.WriteChunkAsync(
+            uploadId,
+            0,
+            new MemoryStream(first),
+            first.Length,
+            Hash(first),
+            CancellationToken.None);
+
+        var result = await storage.WriteChunkAsync(
+            uploadId,
+            0,
+            new MemoryStream(second),
+            second.Length,
+            Hash(second),
+            CancellationToken.None);
+
+        Assert.Equal(ChunkStorageWriteOutcome.Conflict, result.Outcome);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_root))

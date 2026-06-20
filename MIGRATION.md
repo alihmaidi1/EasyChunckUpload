@@ -66,3 +66,16 @@ The consuming application must reference its chosen EF Core provider. The packag
 5. Remove 1.x tables and artifacts only after the rollback window closes.
 
 For the runtime boundaries and recovery model, read [Architecture](docs/architecture.md).
+
+## Upgrading from 2.0 to 2.1
+
+Generate and apply a new consumer-owned EF Core migration. Version 2.1 normalizes internal timestamp columns to UTC `DateTime` so expiration and lease queries work consistently across relational providers such as SQL Server and SQLite.
+
+Review the new options before deployment:
+
+- `CleanupLeaseDuration`
+- `LeaseRenewalInterval`
+- `ExpiredSessionMetadataRetention`
+- `FileSystemStorageOptions.FlushToDisk`
+
+Custom persistence adapters should implement `TryRenewAsync`, owner-conditional `TryMarkArtifactsDeletedAsync`, and `DeleteExpiredMetadataAsync`. Default interface implementations preserve source and binary compatibility, but only adapters that implement these operations provide the complete distributed-safety and retention guarantees.

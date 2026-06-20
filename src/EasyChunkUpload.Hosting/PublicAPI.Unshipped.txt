@@ -1,0 +1,9 @@
+#nullable enable
+EasyChunkUpload.Hosting.DependencyInjection
+EasyChunkUpload.Hosting.UploadMaintenanceOptions
+EasyChunkUpload.Hosting.UploadMaintenanceOptions.BatchSize.get -> int
+EasyChunkUpload.Hosting.UploadMaintenanceOptions.BatchSize.set -> void
+EasyChunkUpload.Hosting.UploadMaintenanceOptions.Interval.get -> System.TimeSpan
+EasyChunkUpload.Hosting.UploadMaintenanceOptions.Interval.set -> void
+EasyChunkUpload.Hosting.UploadMaintenanceOptions.UploadMaintenanceOptions() -> void
+static EasyChunkUpload.Hosting.DependencyInjection.AddUploadMaintenanceWorker(this EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder! builder, System.Action<EasyChunkUpload.Hosting.UploadMaintenanceOptions!>? configure = null) -> EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder!

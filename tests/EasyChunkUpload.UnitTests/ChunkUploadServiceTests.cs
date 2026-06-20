@@ -21,6 +21,32 @@ public sealed class ChunkUploadServiceTests
     }
 
     [Fact]
+    public async Task StartAsync_RejectsChunkPlanThatCannotContainFile()
+    {
+        await using var provider = CreateProvider(options => options.MaxChunkSize = 4);
+        await using var scope = provider.CreateAsyncScope();
+        var service = scope.ServiceProvider.GetRequiredService<IChunkUploadService>();
+
+        var result = await service.StartAsync(new("file.bin", 9, 2, new string('a', 64)));
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(UploadErrorCode.InvalidRequest, result.Error?.Code);
+    }
+
+    [Fact]
+    public async Task StartAsync_RejectsMoreChunksThanBytes()
+    {
+        await using var provider = CreateProvider();
+        await using var scope = provider.CreateAsyncScope();
+        var service = scope.ServiceProvider.GetRequiredService<IChunkUploadService>();
+
+        var result = await service.StartAsync(new("file.bin", 2, 3, new string('a', 64)));
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(UploadErrorCode.InvalidRequest, result.Error?.Code);
+    }
+
+    [Fact]
     public async Task UploadChunkAsync_IsIdempotentForMatchingChunk()
     {
         await using var provider = CreateProvider();
@@ -55,12 +81,59 @@ public sealed class ChunkUploadServiceTests
         Assert.Equal(UploadErrorCode.IncompleteUpload, completed.Error?.Code);
     }
 
-    private static ServiceProvider CreateProvider()
+    [Fact]
+    public async Task CompleteAsync_RenewsLeaseDuringSlowAssembly()
+    {
+        await using var provider = CreateProvider(
+            ConfigureShortLeases,
+            state => state.AssemblyDelay = TimeSpan.FromMilliseconds(350));
+        await using var scope = provider.CreateAsyncScope();
+        var service = scope.ServiceProvider.GetRequiredService<IChunkUploadService>();
+        var state = scope.ServiceProvider.GetRequiredService<InMemoryState>();
+        var bytes = "abc"u8.ToArray();
+        var hash = Hash(bytes);
+        var started = await service.StartAsync(new("file.bin", bytes.Length, 1, hash));
+        await service.UploadChunkAsync(started.Value!.UploadId, 0, new MemoryStream(bytes), bytes.Length, hash);
+
+        var completed = await service.CompleteAsync(started.Value.UploadId);
+
+        Assert.True(completed.IsSuccess);
+        Assert.True(state.LeaseRenewalCount > 0);
+    }
+
+    [Fact]
+    public async Task CompleteAsync_ReturnsLeaseUnavailableWhenRenewalLosesOwnership()
+    {
+        await using var provider = CreateProvider(
+            ConfigureShortLeases,
+            state =>
+            {
+                state.AssemblyDelay = TimeSpan.FromMilliseconds(350);
+                state.LoseLeaseOnRenewal = true;
+            });
+        await using var scope = provider.CreateAsyncScope();
+        var service = scope.ServiceProvider.GetRequiredService<IChunkUploadService>();
+        var bytes = "abc"u8.ToArray();
+        var hash = Hash(bytes);
+        var started = await service.StartAsync(new("file.bin", bytes.Length, 1, hash));
+        await service.UploadChunkAsync(started.Value!.UploadId, 0, new MemoryStream(bytes), bytes.Length, hash);
+
+        var completed = await service.CompleteAsync(started.Value.UploadId);
+
+        Assert.False(completed.IsSuccess);
+        Assert.Equal(UploadErrorCode.LeaseUnavailable, completed.Error?.Code);
+    }
+
+    private static ServiceProvider CreateProvider(
+        Action<UploadOptions>? configureOptions = null,
+        Action<InMemoryState>? configureState = null)
     {
         var state = new InMemoryState();
+        configureState?.Invoke(state);
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddEasyChunkUpload();
+        services.AddEasyChunkUpload(configureOptions);
+        services.AddSingleton(state);
         services.AddSingleton<IUploadSessionStore>(state);
         services.AddSingleton<IUploadCompletionCoordinator>(state);
         services.AddSingleton<IChunkStorage>(state);
@@ -73,10 +146,23 @@ public sealed class ChunkUploadServiceTests
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
+    private static void ConfigureShortLeases(UploadOptions options)
+    {
+        options.CompletionLeaseDuration = TimeSpan.FromMilliseconds(200);
+        options.CleanupLeaseDuration = TimeSpan.FromMilliseconds(200);
+        options.LeaseRenewalInterval = TimeSpan.FromMilliseconds(40);
+    }
+
     private sealed class InMemoryState : IUploadSessionStore, IUploadCompletionCoordinator, IChunkStorage
     {
         private readonly ConcurrentDictionary<Guid, UploadSessionRecord> _sessions = new();
         private readonly ConcurrentDictionary<(Guid UploadId, int Index), UploadChunkRecord> _chunks = new();
+
+        public TimeSpan AssemblyDelay { get; set; }
+
+        public bool LoseLeaseOnRenewal { get; set; }
+
+        public int LeaseRenewalCount { get; private set; }
 
         public Task CreateAsync(UploadSessionRecord session, CancellationToken cancellationToken)
         {
@@ -204,6 +290,24 @@ public sealed class ChunkUploadServiceTests
 
         public Task<int> RecoverExpiredCompletionLeasesAsync(DateTimeOffset now, CancellationToken cancellationToken) => Task.FromResult(0);
 
+        public Task<bool> TryRenewAsync(
+            Guid uploadId,
+            UploadLeasePurpose purpose,
+            string owner,
+            DateTimeOffset now,
+            TimeSpan duration,
+            CancellationToken cancellationToken)
+        {
+            LeaseRenewalCount++;
+            if (LoseLeaseOnRenewal || !_sessions.TryGetValue(uploadId, out var session) || session.LeaseOwner != owner)
+            {
+                return Task.FromResult(false);
+            }
+
+            _sessions[uploadId] = session with { LeaseExpiresAt = now.Add(duration) };
+            return Task.FromResult(true);
+        }
+
         public async Task<ChunkStorageWriteResult> WriteChunkAsync(Guid uploadId, int chunkIndex, Stream content, long expectedLength, string expectedSha256, CancellationToken cancellationToken)
         {
             var hash = await SHA256.HashDataAsync(content, cancellationToken);
@@ -215,8 +319,18 @@ public sealed class ChunkUploadServiceTests
 
         public Task DeleteChunkAsync(Guid uploadId, int chunkIndex, CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public Task<StorageObjectDescriptor> AssembleAsync(UploadSessionRecord session, IReadOnlyList<UploadChunkRecord> chunks, CancellationToken cancellationToken) =>
-            Task.FromResult(new StorageObjectDescriptor($"completed/{session.Id:N}/content", session.ContentLength, session.Sha256));
+        public async Task<StorageObjectDescriptor> AssembleAsync(
+            UploadSessionRecord session,
+            IReadOnlyList<UploadChunkRecord> chunks,
+            CancellationToken cancellationToken)
+        {
+            if (AssemblyDelay > TimeSpan.Zero)
+            {
+                await Task.Delay(AssemblyDelay, cancellationToken);
+            }
+
+            return new($"completed/{session.Id:N}/content", session.ContentLength, session.Sha256);
+        }
 
         public Task DeleteCompletedFileAsync(Guid uploadId, CancellationToken cancellationToken) => Task.CompletedTask;
 

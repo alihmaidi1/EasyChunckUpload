@@ -46,7 +46,7 @@ internal sealed class ChunkUploadService(
 
         await store.CreateAsync(session, cancellationToken);
         UploadMetrics.UploadsStarted.Add(1);
-        logger.LogInformation("Started chunk upload {UploadId} for {FileName}.", session.Id, session.FileName);
+        logger.LogInformation("Started chunk upload {UploadId}.", session.Id);
 
         return UploadResult<UploadSessionDescriptor>.Success(ToDescriptor(session));
     }
@@ -224,7 +224,44 @@ internal sealed class ChunkUploadService(
                 return UploadResult<UploadedFileDescriptor>.Failure(UploadErrorCode.SizeMismatch, "The combined chunk size does not match the file size.");
             }
 
-            var storedFile = await storage.AssembleAsync(session, chunks, cancellationToken);
+            StorageObjectDescriptor? storedFile = null;
+            var assemblyInterrupted = false;
+            var heartbeat = new UploadLeaseHeartbeat(
+                coordinator,
+                timeProvider,
+                uploadId,
+                UploadLeasePurpose.Completion,
+                owner,
+                _options.LeaseRenewalInterval,
+                _options.CompletionLeaseDuration,
+                cancellationToken);
+            try
+            {
+                storedFile = await storage.AssembleAsync(session, chunks, heartbeat.OperationToken);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                assemblyInterrupted = true;
+            }
+            finally
+            {
+                await heartbeat.StopAsync();
+            }
+
+            heartbeat.ThrowIfFailed();
+            if (heartbeat.LeaseLost)
+            {
+                return UploadResult<UploadedFileDescriptor>.Failure(
+                    UploadErrorCode.LeaseUnavailable,
+                    "The completion lease was lost while the file was being assembled.");
+            }
+
+            if (assemblyInterrupted)
+            {
+                throw new OperationCanceledException("File assembly was interrupted.");
+            }
+
+            ArgumentNullException.ThrowIfNull(storedFile);
             if (storedFile.ContentLength != session.ContentLength || storedFile.Sha256 != session.Sha256)
             {
                 await storage.DeleteCompletedFileAsync(uploadId, cancellationToken);
@@ -253,6 +290,16 @@ internal sealed class ChunkUploadService(
             UploadMetrics.UploadsCompleted.Add(1);
             logger.LogInformation("Completed upload {UploadId} at {StorageKey}.", uploadId, descriptor.StorageKey);
             return UploadResult<UploadedFileDescriptor>.Success(descriptor);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            await coordinator.ReleaseAsync(
+                uploadId,
+                owner,
+                UploadState.Uploading,
+                timeProvider.GetUtcNow(),
+                CancellationToken.None);
+            throw;
         }
         catch
         {

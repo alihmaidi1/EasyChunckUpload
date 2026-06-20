@@ -8,7 +8,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <VersionPrefix>2.0.1</VersionPrefix>
+    <VersionPrefix>2.1.0</VersionPrefix>
     <Authors>AliHmaidi</Authors>
     <Company>AliHmaidi</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>chunk-upload;resumable-upload;aspnetcore;dotnet;streaming</PackageTags>
-    <PackageReleaseNotes>EasyChunkUpload 2.0.1 expands the quick start, Minimal API guidance, architecture documentation, adapter rules, migration steps, and operational security guidance.</PackageReleaseNotes>
+    <PackageReleaseNotes>EasyChunkUpload 2.1 adds renewable completion and cleanup leases, provider-portable UTC persistence, metadata retention, stronger upload-plan validation, durable filesystem flushes, and expanded concurrency tests.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
@@ -32,5 +32,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
   </ItemGroup>
 </Project>

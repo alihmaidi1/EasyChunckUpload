@@ -50,7 +50,18 @@ jobs:
           if grep -q "has the following vulnerable packages" <<< "$report"; then
             exit 1
           fi
+      - name: Reject deprecated packages
+        shell: bash
+        run: |
+          report="$(dotnet list EasyChunckUpload.sln package --deprecated)"
+          echo "$report"
+          if grep -q "has the following deprecated packages" <<< "$report"; then
+            exit 1
+          fi
       - run: dotnet pack EasyChunckUpload.sln --configuration Release --no-build --output artifacts/packages -p:PackageVersion=${{ steps.version.outputs.version }}
+      - name: Verify package consumption
+        shell: pwsh
+        run: ./eng/verify-packages.ps1 -PackageDirectory artifacts/packages -Version ${{ steps.version.outputs.version }}
       - name: NuGet login
         id: nuget-login
         uses: NuGet/login@v1

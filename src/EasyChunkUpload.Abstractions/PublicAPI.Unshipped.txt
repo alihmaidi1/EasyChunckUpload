@@ -1,0 +1,324 @@
+#nullable enable
+EasyChunkUpload.Abstractions.ChunkReceipt
+EasyChunkUpload.Abstractions.ChunkReceipt.<Clone>$() -> EasyChunkUpload.Abstractions.ChunkReceipt!
+EasyChunkUpload.Abstractions.ChunkReceipt.ChunkIndex.get -> int
+EasyChunkUpload.Abstractions.ChunkReceipt.ChunkIndex.init -> void
+EasyChunkUpload.Abstractions.ChunkReceipt.ChunkReceipt(System.Guid UploadId, int ChunkIndex, long ContentLength, string! Sha256, bool WasAlreadyUploaded) -> void
+EasyChunkUpload.Abstractions.ChunkReceipt.ContentLength.get -> long
+EasyChunkUpload.Abstractions.ChunkReceipt.ContentLength.init -> void
+EasyChunkUpload.Abstractions.ChunkReceipt.Deconstruct(out System.Guid UploadId, out int ChunkIndex, out long ContentLength, out string! Sha256, out bool WasAlreadyUploaded) -> void
+EasyChunkUpload.Abstractions.ChunkReceipt.Equals(EasyChunkUpload.Abstractions.ChunkReceipt? other) -> bool
+EasyChunkUpload.Abstractions.ChunkReceipt.Sha256.get -> string!
+EasyChunkUpload.Abstractions.ChunkReceipt.Sha256.init -> void
+EasyChunkUpload.Abstractions.ChunkReceipt.UploadId.get -> System.Guid
+EasyChunkUpload.Abstractions.ChunkReceipt.UploadId.init -> void
+EasyChunkUpload.Abstractions.ChunkReceipt.WasAlreadyUploaded.get -> bool
+EasyChunkUpload.Abstractions.ChunkReceipt.WasAlreadyUploaded.init -> void
+EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationOutcome.AlreadyRegistered = 1 -> EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationOutcome.Conflict = 2 -> EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationOutcome.InvalidState = 3 -> EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationOutcome.NotFound = 4 -> EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationOutcome.Registered = 0 -> EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationResult
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.<Clone>$() -> EasyChunkUpload.Abstractions.ChunkRegistrationResult!
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.ChunkRegistrationResult(EasyChunkUpload.Abstractions.ChunkRegistrationOutcome Outcome, EasyChunkUpload.Abstractions.UploadChunkRecord? ExistingChunk = null) -> void
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.Deconstruct(out EasyChunkUpload.Abstractions.ChunkRegistrationOutcome Outcome, out EasyChunkUpload.Abstractions.UploadChunkRecord? ExistingChunk) -> void
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.Equals(EasyChunkUpload.Abstractions.ChunkRegistrationResult? other) -> bool
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.ExistingChunk.get -> EasyChunkUpload.Abstractions.UploadChunkRecord?
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.ExistingChunk.init -> void
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.Outcome.get -> EasyChunkUpload.Abstractions.ChunkRegistrationOutcome
+EasyChunkUpload.Abstractions.ChunkRegistrationResult.Outcome.init -> void
+EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome.Conflict = 2 -> EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome.Created = 0 -> EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome.ExistingMatches = 1 -> EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome.HashMismatch = 3 -> EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome.SizeMismatch = 4 -> EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.<Clone>$() -> EasyChunkUpload.Abstractions.ChunkStorageWriteResult!
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.ChunkStorageWriteResult(EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome Outcome, long ContentLength, string! Sha256) -> void
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.ContentLength.get -> long
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.ContentLength.init -> void
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Deconstruct(out EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome Outcome, out long ContentLength, out string! Sha256) -> void
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Equals(EasyChunkUpload.Abstractions.ChunkStorageWriteResult? other) -> bool
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Outcome.get -> EasyChunkUpload.Abstractions.ChunkStorageWriteOutcome
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Outcome.init -> void
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Sha256.get -> string!
+EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Sha256.init -> void
+EasyChunkUpload.Abstractions.IChunkStorage
+EasyChunkUpload.Abstractions.IChunkStorage.AssembleAsync(EasyChunkUpload.Abstractions.UploadSessionRecord! session, System.Collections.Generic.IReadOnlyList<EasyChunkUpload.Abstractions.UploadChunkRecord!>! chunks, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.StorageObjectDescriptor!>!
+EasyChunkUpload.Abstractions.IChunkStorage.DeleteChunkAsync(System.Guid uploadId, int chunkIndex, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IChunkStorage.DeleteCompletedFileAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IChunkStorage.DeleteUploadArtifactsAsync(System.Guid uploadId, bool includeCompletedFile, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IChunkStorage.WriteChunkAsync(System.Guid uploadId, int chunkIndex, System.IO.Stream! content, long expectedLength, string! expectedSha256, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.ChunkStorageWriteResult!>!
+EasyChunkUpload.Abstractions.IChunkUploadService
+EasyChunkUpload.Abstractions.IChunkUploadService.CancelAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadResult!>!
+EasyChunkUpload.Abstractions.IChunkUploadService.CompleteAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadResult<EasyChunkUpload.Abstractions.UploadedFileDescriptor!>!>!
+EasyChunkUpload.Abstractions.IChunkUploadService.GetMissingChunksAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadResult<System.Collections.Generic.IReadOnlyList<int>!>!>!
+EasyChunkUpload.Abstractions.IChunkUploadService.GetStatusAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadResult<EasyChunkUpload.Abstractions.UploadStatusDescriptor!>!>!
+EasyChunkUpload.Abstractions.IChunkUploadService.StartAsync(EasyChunkUpload.Abstractions.StartUploadRequest! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadResult<EasyChunkUpload.Abstractions.UploadSessionDescriptor!>!>!
+EasyChunkUpload.Abstractions.IChunkUploadService.UploadChunkAsync(System.Guid uploadId, int chunkIndex, System.IO.Stream! content, long contentLength, string! sha256, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadResult<EasyChunkUpload.Abstractions.ChunkReceipt!>!>!
+EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder
+EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder.Services.get -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+EasyChunkUpload.Abstractions.IUploadCompletionCoordinator
+EasyChunkUpload.Abstractions.IUploadCompletionCoordinator.MarkCompletedAsync(System.Guid uploadId, string! owner, EasyChunkUpload.Abstractions.UploadedFileDescriptor! file, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+EasyChunkUpload.Abstractions.IUploadCompletionCoordinator.RecoverExpiredCompletionLeasesAsync(System.DateTimeOffset now, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+EasyChunkUpload.Abstractions.IUploadCompletionCoordinator.ReleaseAsync(System.Guid uploadId, string! owner, EasyChunkUpload.Abstractions.UploadState targetState, System.DateTimeOffset updatedAt, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IUploadCompletionCoordinator.TryAcquireAsync(System.Guid uploadId, EasyChunkUpload.Abstractions.UploadLeasePurpose purpose, string! owner, System.DateTimeOffset now, System.TimeSpan duration, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+EasyChunkUpload.Abstractions.IUploadCompletionCoordinator.TryRenewAsync(System.Guid uploadId, EasyChunkUpload.Abstractions.UploadLeasePurpose purpose, string! owner, System.DateTimeOffset now, System.TimeSpan duration, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+EasyChunkUpload.Abstractions.IUploadMaintenanceService
+EasyChunkUpload.Abstractions.IUploadMaintenanceService.RunOnceAsync(int batchSize, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IUploadSessionStore
+EasyChunkUpload.Abstractions.IUploadSessionStore.CancelAsync(System.Guid uploadId, System.DateTimeOffset cancelledAt, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.CreateAsync(EasyChunkUpload.Abstractions.UploadSessionRecord! session, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IUploadSessionStore.DeleteExpiredMetadataAsync(System.DateTimeOffset deletedBefore, int batchSize, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<int>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.GetAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadSessionRecord?>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.GetChunkAsync(System.Guid uploadId, int chunkIndex, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.UploadChunkRecord?>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.GetChunksAsync(System.Guid uploadId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<EasyChunkUpload.Abstractions.UploadChunkRecord!>!>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.GetMaintenanceCandidatesAsync(System.DateTimeOffset now, int batchSize, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<EasyChunkUpload.Abstractions.MaintenanceCandidate!>!>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.MarkArtifactsDeletedAsync(System.Guid uploadId, System.DateTimeOffset deletedAt, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
+EasyChunkUpload.Abstractions.IUploadSessionStore.RegisterChunkAsync(EasyChunkUpload.Abstractions.UploadChunkRecord! chunk, System.DateTimeOffset updatedAt, System.DateTimeOffset expiresAt, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<EasyChunkUpload.Abstractions.ChunkRegistrationResult!>!
+EasyChunkUpload.Abstractions.IUploadSessionStore.TryMarkArtifactsDeletedAsync(System.Guid uploadId, string! owner, System.DateTimeOffset deletedAt, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<bool>!
+EasyChunkUpload.Abstractions.MaintenanceCandidate
+EasyChunkUpload.Abstractions.MaintenanceCandidate.<Clone>$() -> EasyChunkUpload.Abstractions.MaintenanceCandidate!
+EasyChunkUpload.Abstractions.MaintenanceCandidate.Deconstruct(out System.Guid UploadId, out EasyChunkUpload.Abstractions.UploadState State, out System.DateTimeOffset? LeaseExpiresAt) -> void
+EasyChunkUpload.Abstractions.MaintenanceCandidate.Equals(EasyChunkUpload.Abstractions.MaintenanceCandidate? other) -> bool
+EasyChunkUpload.Abstractions.MaintenanceCandidate.LeaseExpiresAt.get -> System.DateTimeOffset?
+EasyChunkUpload.Abstractions.MaintenanceCandidate.LeaseExpiresAt.init -> void
+EasyChunkUpload.Abstractions.MaintenanceCandidate.MaintenanceCandidate(System.Guid UploadId, EasyChunkUpload.Abstractions.UploadState State, System.DateTimeOffset? LeaseExpiresAt) -> void
+EasyChunkUpload.Abstractions.MaintenanceCandidate.State.get -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.MaintenanceCandidate.State.init -> void
+EasyChunkUpload.Abstractions.MaintenanceCandidate.UploadId.get -> System.Guid
+EasyChunkUpload.Abstractions.MaintenanceCandidate.UploadId.init -> void
+EasyChunkUpload.Abstractions.StartUploadRequest
+EasyChunkUpload.Abstractions.StartUploadRequest.<Clone>$() -> EasyChunkUpload.Abstractions.StartUploadRequest!
+EasyChunkUpload.Abstractions.StartUploadRequest.ContentLength.get -> long
+EasyChunkUpload.Abstractions.StartUploadRequest.ContentLength.init -> void
+EasyChunkUpload.Abstractions.StartUploadRequest.Deconstruct(out string! FileName, out long ContentLength, out int TotalChunks, out string! Sha256) -> void
+EasyChunkUpload.Abstractions.StartUploadRequest.Equals(EasyChunkUpload.Abstractions.StartUploadRequest? other) -> bool
+EasyChunkUpload.Abstractions.StartUploadRequest.FileName.get -> string!
+EasyChunkUpload.Abstractions.StartUploadRequest.FileName.init -> void
+EasyChunkUpload.Abstractions.StartUploadRequest.Sha256.get -> string!
+EasyChunkUpload.Abstractions.StartUploadRequest.Sha256.init -> void
+EasyChunkUpload.Abstractions.StartUploadRequest.StartUploadRequest(string! FileName, long ContentLength, int TotalChunks, string! Sha256) -> void
+EasyChunkUpload.Abstractions.StartUploadRequest.TotalChunks.get -> int
+EasyChunkUpload.Abstractions.StartUploadRequest.TotalChunks.init -> void
+EasyChunkUpload.Abstractions.StorageObjectDescriptor
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.<Clone>$() -> EasyChunkUpload.Abstractions.StorageObjectDescriptor!
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.ContentLength.get -> long
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.ContentLength.init -> void
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.Deconstruct(out string! StorageKey, out long ContentLength, out string! Sha256) -> void
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.Equals(EasyChunkUpload.Abstractions.StorageObjectDescriptor? other) -> bool
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.Sha256.get -> string!
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.Sha256.init -> void
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.StorageKey.get -> string!
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.StorageKey.init -> void
+EasyChunkUpload.Abstractions.StorageObjectDescriptor.StorageObjectDescriptor(string! StorageKey, long ContentLength, string! Sha256) -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord
+EasyChunkUpload.Abstractions.UploadChunkRecord.<Clone>$() -> EasyChunkUpload.Abstractions.UploadChunkRecord!
+EasyChunkUpload.Abstractions.UploadChunkRecord.ChunkIndex.get -> int
+EasyChunkUpload.Abstractions.UploadChunkRecord.ChunkIndex.init -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord.ContentLength.get -> long
+EasyChunkUpload.Abstractions.UploadChunkRecord.ContentLength.init -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord.CreatedAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadChunkRecord.CreatedAt.init -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord.Deconstruct(out System.Guid UploadId, out int ChunkIndex, out long ContentLength, out string! Sha256, out System.DateTimeOffset CreatedAt) -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord.Equals(EasyChunkUpload.Abstractions.UploadChunkRecord? other) -> bool
+EasyChunkUpload.Abstractions.UploadChunkRecord.Sha256.get -> string!
+EasyChunkUpload.Abstractions.UploadChunkRecord.Sha256.init -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord.UploadChunkRecord(System.Guid UploadId, int ChunkIndex, long ContentLength, string! Sha256, System.DateTimeOffset CreatedAt) -> void
+EasyChunkUpload.Abstractions.UploadChunkRecord.UploadId.get -> System.Guid
+EasyChunkUpload.Abstractions.UploadChunkRecord.UploadId.init -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.<Clone>$() -> EasyChunkUpload.Abstractions.UploadedFileDescriptor!
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.CompletedAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.CompletedAt.init -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.ContentLength.get -> long
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.ContentLength.init -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.Deconstruct(out System.Guid UploadId, out string! FileName, out long ContentLength, out string! Sha256, out string! StorageKey, out System.DateTimeOffset CompletedAt) -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.Equals(EasyChunkUpload.Abstractions.UploadedFileDescriptor? other) -> bool
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.FileName.get -> string!
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.FileName.init -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.Sha256.get -> string!
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.Sha256.init -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.StorageKey.get -> string!
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.StorageKey.init -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.UploadedFileDescriptor(System.Guid UploadId, string! FileName, long ContentLength, string! Sha256, string! StorageKey, System.DateTimeOffset CompletedAt) -> void
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.UploadId.get -> System.Guid
+EasyChunkUpload.Abstractions.UploadedFileDescriptor.UploadId.init -> void
+EasyChunkUpload.Abstractions.UploadError
+EasyChunkUpload.Abstractions.UploadError.<Clone>$() -> EasyChunkUpload.Abstractions.UploadError!
+EasyChunkUpload.Abstractions.UploadError.Code.get -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadError.Code.init -> void
+EasyChunkUpload.Abstractions.UploadError.Deconstruct(out EasyChunkUpload.Abstractions.UploadErrorCode Code, out string! Message) -> void
+EasyChunkUpload.Abstractions.UploadError.Equals(EasyChunkUpload.Abstractions.UploadError? other) -> bool
+EasyChunkUpload.Abstractions.UploadError.Message.get -> string!
+EasyChunkUpload.Abstractions.UploadError.Message.init -> void
+EasyChunkUpload.Abstractions.UploadError.UploadError(EasyChunkUpload.Abstractions.UploadErrorCode Code, string! Message) -> void
+EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.ChunkConflict = 3 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.HashMismatch = 4 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.IncompleteUpload = 6 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.InvalidRequest = 0 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.InvalidState = 2 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.LeaseUnavailable = 7 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.NotFound = 1 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadErrorCode.SizeMismatch = 5 -> EasyChunkUpload.Abstractions.UploadErrorCode
+EasyChunkUpload.Abstractions.UploadLeasePurpose
+EasyChunkUpload.Abstractions.UploadLeasePurpose.Cleanup = 1 -> EasyChunkUpload.Abstractions.UploadLeasePurpose
+EasyChunkUpload.Abstractions.UploadLeasePurpose.Completion = 0 -> EasyChunkUpload.Abstractions.UploadLeasePurpose
+EasyChunkUpload.Abstractions.UploadResult
+EasyChunkUpload.Abstractions.UploadResult.Error.get -> EasyChunkUpload.Abstractions.UploadError?
+EasyChunkUpload.Abstractions.UploadResult.IsSuccess.get -> bool
+EasyChunkUpload.Abstractions.UploadResult.UploadResult(bool isSuccess, EasyChunkUpload.Abstractions.UploadError? error) -> void
+EasyChunkUpload.Abstractions.UploadResult<T>
+EasyChunkUpload.Abstractions.UploadResult<T>.Value.get -> T?
+EasyChunkUpload.Abstractions.UploadSessionDescriptor
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.<Clone>$() -> EasyChunkUpload.Abstractions.UploadSessionDescriptor!
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.ContentLength.get -> long
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.ContentLength.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.CreatedAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.CreatedAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.Deconstruct(out System.Guid UploadId, out string! FileName, out long ContentLength, out int TotalChunks, out string! Sha256, out EasyChunkUpload.Abstractions.UploadState State, out System.DateTimeOffset CreatedAt, out System.DateTimeOffset ExpiresAt) -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.Equals(EasyChunkUpload.Abstractions.UploadSessionDescriptor? other) -> bool
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.ExpiresAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.ExpiresAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.FileName.get -> string!
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.FileName.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.Sha256.get -> string!
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.Sha256.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.State.get -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.State.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.TotalChunks.get -> int
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.TotalChunks.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.UploadId.get -> System.Guid
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.UploadId.init -> void
+EasyChunkUpload.Abstractions.UploadSessionDescriptor.UploadSessionDescriptor(System.Guid UploadId, string! FileName, long ContentLength, int TotalChunks, string! Sha256, EasyChunkUpload.Abstractions.UploadState State, System.DateTimeOffset CreatedAt, System.DateTimeOffset ExpiresAt) -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord
+EasyChunkUpload.Abstractions.UploadSessionRecord.<Clone>$() -> EasyChunkUpload.Abstractions.UploadSessionRecord!
+EasyChunkUpload.Abstractions.UploadSessionRecord.ArtifactsDeletedAt.get -> System.DateTimeOffset?
+EasyChunkUpload.Abstractions.UploadSessionRecord.ArtifactsDeletedAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.CompletedAt.get -> System.DateTimeOffset?
+EasyChunkUpload.Abstractions.UploadSessionRecord.CompletedAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.ContentLength.get -> long
+EasyChunkUpload.Abstractions.UploadSessionRecord.ContentLength.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.CreatedAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadSessionRecord.CreatedAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.Deconstruct(out System.Guid Id, out string! FileName, out long ContentLength, out int TotalChunks, out string! Sha256, out EasyChunkUpload.Abstractions.UploadState State, out System.DateTimeOffset CreatedAt, out System.DateTimeOffset UpdatedAt, out System.DateTimeOffset? ExpiresAt, out string? StorageKey, out System.DateTimeOffset? CompletedAt, out string? LeaseOwner, out EasyChunkUpload.Abstractions.UploadLeasePurpose? LeasePurpose, out System.DateTimeOffset? LeaseExpiresAt, out long Version, out System.DateTimeOffset? ArtifactsDeletedAt) -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.Equals(EasyChunkUpload.Abstractions.UploadSessionRecord? other) -> bool
+EasyChunkUpload.Abstractions.UploadSessionRecord.ExpiresAt.get -> System.DateTimeOffset?
+EasyChunkUpload.Abstractions.UploadSessionRecord.ExpiresAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.FileName.get -> string!
+EasyChunkUpload.Abstractions.UploadSessionRecord.FileName.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.Id.get -> System.Guid
+EasyChunkUpload.Abstractions.UploadSessionRecord.Id.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.LeaseExpiresAt.get -> System.DateTimeOffset?
+EasyChunkUpload.Abstractions.UploadSessionRecord.LeaseExpiresAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.LeaseOwner.get -> string?
+EasyChunkUpload.Abstractions.UploadSessionRecord.LeaseOwner.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.LeasePurpose.get -> EasyChunkUpload.Abstractions.UploadLeasePurpose?
+EasyChunkUpload.Abstractions.UploadSessionRecord.LeasePurpose.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.Sha256.get -> string!
+EasyChunkUpload.Abstractions.UploadSessionRecord.Sha256.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.State.get -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadSessionRecord.State.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.StorageKey.get -> string?
+EasyChunkUpload.Abstractions.UploadSessionRecord.StorageKey.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.TotalChunks.get -> int
+EasyChunkUpload.Abstractions.UploadSessionRecord.TotalChunks.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.UpdatedAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadSessionRecord.UpdatedAt.init -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.UploadSessionRecord(System.Guid Id, string! FileName, long ContentLength, int TotalChunks, string! Sha256, EasyChunkUpload.Abstractions.UploadState State, System.DateTimeOffset CreatedAt, System.DateTimeOffset UpdatedAt, System.DateTimeOffset? ExpiresAt, string? StorageKey, System.DateTimeOffset? CompletedAt, string? LeaseOwner, EasyChunkUpload.Abstractions.UploadLeasePurpose? LeasePurpose, System.DateTimeOffset? LeaseExpiresAt, long Version, System.DateTimeOffset? ArtifactsDeletedAt) -> void
+EasyChunkUpload.Abstractions.UploadSessionRecord.Version.get -> long
+EasyChunkUpload.Abstractions.UploadSessionRecord.Version.init -> void
+EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadState.Cancelled = 4 -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadState.Completed = 3 -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadState.Completing = 2 -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadState.Created = 0 -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadState.Failed = 5 -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadState.Uploading = 1 -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadStatusDescriptor
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.<Clone>$() -> EasyChunkUpload.Abstractions.UploadStatusDescriptor!
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.ContentLength.get -> long
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.ContentLength.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.Deconstruct(out System.Guid UploadId, out EasyChunkUpload.Abstractions.UploadState State, out int UploadedChunks, out int TotalChunks, out long UploadedBytes, out long ContentLength, out System.DateTimeOffset UpdatedAt) -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.Equals(EasyChunkUpload.Abstractions.UploadStatusDescriptor? other) -> bool
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.State.get -> EasyChunkUpload.Abstractions.UploadState
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.State.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.TotalChunks.get -> int
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.TotalChunks.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UpdatedAt.get -> System.DateTimeOffset
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UpdatedAt.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadedBytes.get -> long
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadedBytes.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadedChunks.get -> int
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadedChunks.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadId.get -> System.Guid
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadId.init -> void
+EasyChunkUpload.Abstractions.UploadStatusDescriptor.UploadStatusDescriptor(System.Guid UploadId, EasyChunkUpload.Abstractions.UploadState State, int UploadedChunks, int TotalChunks, long UploadedBytes, long ContentLength, System.DateTimeOffset UpdatedAt) -> void
+override EasyChunkUpload.Abstractions.ChunkReceipt.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.ChunkReceipt.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.ChunkReceipt.ToString() -> string!
+override EasyChunkUpload.Abstractions.ChunkRegistrationResult.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.ChunkRegistrationResult.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.ChunkRegistrationResult.ToString() -> string!
+override EasyChunkUpload.Abstractions.ChunkStorageWriteResult.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.ChunkStorageWriteResult.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.ChunkStorageWriteResult.ToString() -> string!
+override EasyChunkUpload.Abstractions.MaintenanceCandidate.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.MaintenanceCandidate.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.MaintenanceCandidate.ToString() -> string!
+override EasyChunkUpload.Abstractions.StartUploadRequest.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.StartUploadRequest.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.StartUploadRequest.ToString() -> string!
+override EasyChunkUpload.Abstractions.StorageObjectDescriptor.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.StorageObjectDescriptor.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.StorageObjectDescriptor.ToString() -> string!
+override EasyChunkUpload.Abstractions.UploadChunkRecord.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.UploadChunkRecord.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.UploadChunkRecord.ToString() -> string!
+override EasyChunkUpload.Abstractions.UploadedFileDescriptor.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.UploadedFileDescriptor.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.UploadedFileDescriptor.ToString() -> string!
+override EasyChunkUpload.Abstractions.UploadError.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.UploadError.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.UploadError.ToString() -> string!
+override EasyChunkUpload.Abstractions.UploadSessionDescriptor.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.UploadSessionDescriptor.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.UploadSessionDescriptor.ToString() -> string!
+override EasyChunkUpload.Abstractions.UploadSessionRecord.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.UploadSessionRecord.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.UploadSessionRecord.ToString() -> string!
+override EasyChunkUpload.Abstractions.UploadStatusDescriptor.Equals(object? obj) -> bool
+override EasyChunkUpload.Abstractions.UploadStatusDescriptor.GetHashCode() -> int
+override EasyChunkUpload.Abstractions.UploadStatusDescriptor.ToString() -> string!
+static EasyChunkUpload.Abstractions.ChunkReceipt.operator !=(EasyChunkUpload.Abstractions.ChunkReceipt? left, EasyChunkUpload.Abstractions.ChunkReceipt? right) -> bool
+static EasyChunkUpload.Abstractions.ChunkReceipt.operator ==(EasyChunkUpload.Abstractions.ChunkReceipt? left, EasyChunkUpload.Abstractions.ChunkReceipt? right) -> bool
+static EasyChunkUpload.Abstractions.ChunkRegistrationResult.operator !=(EasyChunkUpload.Abstractions.ChunkRegistrationResult? left, EasyChunkUpload.Abstractions.ChunkRegistrationResult? right) -> bool
+static EasyChunkUpload.Abstractions.ChunkRegistrationResult.operator ==(EasyChunkUpload.Abstractions.ChunkRegistrationResult? left, EasyChunkUpload.Abstractions.ChunkRegistrationResult? right) -> bool
+static EasyChunkUpload.Abstractions.ChunkStorageWriteResult.operator !=(EasyChunkUpload.Abstractions.ChunkStorageWriteResult? left, EasyChunkUpload.Abstractions.ChunkStorageWriteResult? right) -> bool
+static EasyChunkUpload.Abstractions.ChunkStorageWriteResult.operator ==(EasyChunkUpload.Abstractions.ChunkStorageWriteResult? left, EasyChunkUpload.Abstractions.ChunkStorageWriteResult? right) -> bool
+static EasyChunkUpload.Abstractions.MaintenanceCandidate.operator !=(EasyChunkUpload.Abstractions.MaintenanceCandidate? left, EasyChunkUpload.Abstractions.MaintenanceCandidate? right) -> bool
+static EasyChunkUpload.Abstractions.MaintenanceCandidate.operator ==(EasyChunkUpload.Abstractions.MaintenanceCandidate? left, EasyChunkUpload.Abstractions.MaintenanceCandidate? right) -> bool
+static EasyChunkUpload.Abstractions.StartUploadRequest.operator !=(EasyChunkUpload.Abstractions.StartUploadRequest? left, EasyChunkUpload.Abstractions.StartUploadRequest? right) -> bool
+static EasyChunkUpload.Abstractions.StartUploadRequest.operator ==(EasyChunkUpload.Abstractions.StartUploadRequest? left, EasyChunkUpload.Abstractions.StartUploadRequest? right) -> bool
+static EasyChunkUpload.Abstractions.StorageObjectDescriptor.operator !=(EasyChunkUpload.Abstractions.StorageObjectDescriptor? left, EasyChunkUpload.Abstractions.StorageObjectDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.StorageObjectDescriptor.operator ==(EasyChunkUpload.Abstractions.StorageObjectDescriptor? left, EasyChunkUpload.Abstractions.StorageObjectDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.UploadChunkRecord.operator !=(EasyChunkUpload.Abstractions.UploadChunkRecord? left, EasyChunkUpload.Abstractions.UploadChunkRecord? right) -> bool
+static EasyChunkUpload.Abstractions.UploadChunkRecord.operator ==(EasyChunkUpload.Abstractions.UploadChunkRecord? left, EasyChunkUpload.Abstractions.UploadChunkRecord? right) -> bool
+static EasyChunkUpload.Abstractions.UploadedFileDescriptor.operator !=(EasyChunkUpload.Abstractions.UploadedFileDescriptor? left, EasyChunkUpload.Abstractions.UploadedFileDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.UploadedFileDescriptor.operator ==(EasyChunkUpload.Abstractions.UploadedFileDescriptor? left, EasyChunkUpload.Abstractions.UploadedFileDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.UploadError.operator !=(EasyChunkUpload.Abstractions.UploadError? left, EasyChunkUpload.Abstractions.UploadError? right) -> bool
+static EasyChunkUpload.Abstractions.UploadError.operator ==(EasyChunkUpload.Abstractions.UploadError? left, EasyChunkUpload.Abstractions.UploadError? right) -> bool
+static EasyChunkUpload.Abstractions.UploadResult.Failure(EasyChunkUpload.Abstractions.UploadErrorCode code, string! message) -> EasyChunkUpload.Abstractions.UploadResult!
+static EasyChunkUpload.Abstractions.UploadResult.Success() -> EasyChunkUpload.Abstractions.UploadResult!
+static EasyChunkUpload.Abstractions.UploadResult<T>.Failure(EasyChunkUpload.Abstractions.UploadErrorCode code, string! message) -> EasyChunkUpload.Abstractions.UploadResult<T>!
+static EasyChunkUpload.Abstractions.UploadResult<T>.Success(T value) -> EasyChunkUpload.Abstractions.UploadResult<T>!
+static EasyChunkUpload.Abstractions.UploadSessionDescriptor.operator !=(EasyChunkUpload.Abstractions.UploadSessionDescriptor? left, EasyChunkUpload.Abstractions.UploadSessionDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.UploadSessionDescriptor.operator ==(EasyChunkUpload.Abstractions.UploadSessionDescriptor? left, EasyChunkUpload.Abstractions.UploadSessionDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.UploadSessionRecord.operator !=(EasyChunkUpload.Abstractions.UploadSessionRecord? left, EasyChunkUpload.Abstractions.UploadSessionRecord? right) -> bool
+static EasyChunkUpload.Abstractions.UploadSessionRecord.operator ==(EasyChunkUpload.Abstractions.UploadSessionRecord? left, EasyChunkUpload.Abstractions.UploadSessionRecord? right) -> bool
+static EasyChunkUpload.Abstractions.UploadStatusDescriptor.operator !=(EasyChunkUpload.Abstractions.UploadStatusDescriptor? left, EasyChunkUpload.Abstractions.UploadStatusDescriptor? right) -> bool
+static EasyChunkUpload.Abstractions.UploadStatusDescriptor.operator ==(EasyChunkUpload.Abstractions.UploadStatusDescriptor? left, EasyChunkUpload.Abstractions.UploadStatusDescriptor? right) -> bool

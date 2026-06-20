@@ -78,8 +78,9 @@ internal sealed class EntityFrameworkUploadSessionStore(UploadDbContext dbContex
 
         dbContext.UploadChunks.Add(chunk.ToEntity());
         session.State = UploadState.Uploading;
-        session.UpdatedAt = updatedAt;
-        session.ExpiresAt = expiresAt;
+        session.UpdatedAt = updatedAt.UtcDateTime;
+        session.ExpiresAt = expiresAt.UtcDateTime;
+        session.Version++;
 
         try
         {
@@ -106,7 +107,17 @@ internal sealed class EntityFrameworkUploadSessionStore(UploadDbContext dbContex
             var current = await dbContext.UploadSessions
                 .AsNoTracking()
                 .SingleOrDefaultAsync(value => value.Id == chunk.UploadId, cancellationToken);
-            return new(current is null ? ChunkRegistrationOutcome.NotFound : ChunkRegistrationOutcome.InvalidState);
+            if (current is null)
+            {
+                return new(ChunkRegistrationOutcome.NotFound);
+            }
+
+            if (current.State is not (UploadState.Created or UploadState.Uploading) || current.LeaseOwner is not null)
+            {
+                return new(ChunkRegistrationOutcome.InvalidState);
+            }
+
+            throw;
         }
     }
 
@@ -122,8 +133,8 @@ internal sealed class EntityFrameworkUploadSessionStore(UploadDbContext dbContex
         }
 
         entity.State = UploadState.Cancelled;
-        entity.UpdatedAt = cancelledAt;
-        entity.ExpiresAt = cancelledAt;
+        entity.UpdatedAt = cancelledAt.UtcDateTime;
+        entity.ExpiresAt = cancelledAt.UtcDateTime;
         entity.LeaseOwner = null;
         entity.LeasePurpose = null;
         entity.LeaseExpiresAt = null;
@@ -145,18 +156,26 @@ internal sealed class EntityFrameworkUploadSessionStore(UploadDbContext dbContex
         int batchSize,
         CancellationToken cancellationToken)
     {
-        return await dbContext.UploadSessions
+        var candidates = await dbContext.UploadSessions
             .AsNoTracking()
             .Where(value =>
                 value.ArtifactsDeletedAt == null &&
                 value.ExpiresAt != null &&
-                value.ExpiresAt <= now &&
+                value.ExpiresAt <= now.UtcDateTime &&
                 value.State != UploadState.Completed &&
                 value.State != UploadState.Completing)
             .OrderBy(value => value.ExpiresAt)
             .Take(batchSize)
-            .Select(value => new MaintenanceCandidate(value.Id, value.State, value.LeaseExpiresAt))
+            .Select(value => new { value.Id, value.State, value.LeaseExpiresAt })
             .ToListAsync(cancellationToken);
+        return candidates
+            .Select(static value => new MaintenanceCandidate(
+                value.Id,
+                value.State,
+                value.LeaseExpiresAt.HasValue
+                    ? new DateTimeOffset(DateTime.SpecifyKind(value.LeaseExpiresAt.Value, DateTimeKind.Utc))
+                    : null))
+            .ToArray();
     }
 
     public async Task MarkArtifactsDeletedAsync(
@@ -170,13 +189,67 @@ internal sealed class EntityFrameworkUploadSessionStore(UploadDbContext dbContex
             return;
         }
 
-        entity.ArtifactsDeletedAt = deletedAt;
-        entity.UpdatedAt = deletedAt;
+        entity.ArtifactsDeletedAt = deletedAt.UtcDateTime;
+        entity.UpdatedAt = deletedAt.UtcDateTime;
         entity.LeaseOwner = null;
         entity.LeasePurpose = null;
         entity.LeaseExpiresAt = null;
         entity.Version++;
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> TryMarkArtifactsDeletedAsync(
+        Guid uploadId,
+        string owner,
+        DateTimeOffset deletedAt,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ChangeTracker.Clear();
+        var updated = await dbContext.UploadSessions
+            .Where(value =>
+                value.Id == uploadId &&
+                value.State == UploadState.Cancelled &&
+                value.LeasePurpose == UploadLeasePurpose.Cleanup &&
+                value.LeaseOwner == owner)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(value => value.ArtifactsDeletedAt, deletedAt.UtcDateTime)
+                    .SetProperty(value => value.UpdatedAt, deletedAt.UtcDateTime)
+                    .SetProperty(value => value.LeaseOwner, (string?)null)
+                    .SetProperty(value => value.LeasePurpose, (UploadLeasePurpose?)null)
+                    .SetProperty(value => value.LeaseExpiresAt, (DateTime?)null)
+                    .SetProperty(value => value.Version, value => value.Version + 1),
+                cancellationToken);
+        return updated == 1;
+    }
+
+    public async Task<int> DeleteExpiredMetadataAsync(
+        DateTimeOffset deletedBefore,
+        int batchSize,
+        CancellationToken cancellationToken)
+    {
+        var ids = await dbContext.UploadSessions
+            .AsNoTracking()
+            .Where(value =>
+                value.State != UploadState.Completed &&
+                value.ArtifactsDeletedAt != null &&
+                value.ArtifactsDeletedAt <= deletedBefore.UtcDateTime)
+            .OrderBy(value => value.ArtifactsDeletedAt)
+            .Take(batchSize)
+            .Select(value => value.Id)
+            .ToArrayAsync(cancellationToken);
+        if (ids.Length == 0)
+        {
+            return 0;
+        }
+
+        dbContext.ChangeTracker.Clear();
+        var sessions = await dbContext.UploadSessions
+            .Where(value => ids.Contains(value.Id))
+            .ToArrayAsync(cancellationToken);
+        dbContext.UploadSessions.RemoveRange(sessions);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return sessions.Length;
     }
 
     private static bool Matches(UploadChunkEntity entity, UploadChunkRecord record) =>

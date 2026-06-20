@@ -16,25 +16,25 @@ internal sealed class UploadSessionEntity
 
     public UploadState State { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
-    public DateTimeOffset? ExpiresAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }
 
     public string? StorageKey { get; set; }
 
-    public DateTimeOffset? CompletedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
 
     public string? LeaseOwner { get; set; }
 
     public UploadLeasePurpose? LeasePurpose { get; set; }
 
-    public DateTimeOffset? LeaseExpiresAt { get; set; }
+    public DateTime? LeaseExpiresAt { get; set; }
 
     public long Version { get; set; }
 
-    public DateTimeOffset? ArtifactsDeletedAt { get; set; }
+    public DateTime? ArtifactsDeletedAt { get; set; }
 
     public ICollection<UploadChunkEntity> Chunks { get; } = new List<UploadChunkEntity>();
 }
@@ -49,7 +49,7 @@ internal sealed class UploadChunkEntity
 
     public string Sha256 { get; set; } = string.Empty;
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public UploadSessionEntity Session { get; set; } = null!;
 }

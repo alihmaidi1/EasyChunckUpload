@@ -1,0 +1,11 @@
+#nullable enable
+EasyChunkUpload.Storage.FileSystem.DependencyInjection
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.BufferSize.get -> int
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.BufferSize.set -> void
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.FileSystemStorageOptions() -> void
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.FlushToDisk.get -> bool
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.FlushToDisk.set -> void
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.RootPath.get -> string!
+EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions.RootPath.set -> void
+static EasyChunkUpload.Storage.FileSystem.DependencyInjection.UseSharedFileSystem(this EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder! builder, System.Action<EasyChunkUpload.Storage.FileSystem.FileSystemStorageOptions!>! configure) -> EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder!

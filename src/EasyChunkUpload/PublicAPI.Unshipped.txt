@@ -1,0 +1,21 @@
+#nullable enable
+EasyChunkUpload.DependencyInjection
+EasyChunkUpload.UploadOptions
+EasyChunkUpload.UploadOptions.CleanupLeaseDuration.get -> System.TimeSpan
+EasyChunkUpload.UploadOptions.CleanupLeaseDuration.set -> void
+EasyChunkUpload.UploadOptions.CompletionLeaseDuration.get -> System.TimeSpan
+EasyChunkUpload.UploadOptions.CompletionLeaseDuration.set -> void
+EasyChunkUpload.UploadOptions.ExpiredSessionMetadataRetention.get -> System.TimeSpan
+EasyChunkUpload.UploadOptions.ExpiredSessionMetadataRetention.set -> void
+EasyChunkUpload.UploadOptions.IncompleteUploadRetention.get -> System.TimeSpan
+EasyChunkUpload.UploadOptions.IncompleteUploadRetention.set -> void
+EasyChunkUpload.UploadOptions.LeaseRenewalInterval.get -> System.TimeSpan
+EasyChunkUpload.UploadOptions.LeaseRenewalInterval.set -> void
+EasyChunkUpload.UploadOptions.MaxChunkCount.get -> int
+EasyChunkUpload.UploadOptions.MaxChunkCount.set -> void
+EasyChunkUpload.UploadOptions.MaxChunkSize.get -> long
+EasyChunkUpload.UploadOptions.MaxChunkSize.set -> void
+EasyChunkUpload.UploadOptions.MaxFileSize.get -> long
+EasyChunkUpload.UploadOptions.MaxFileSize.set -> void
+EasyChunkUpload.UploadOptions.UploadOptions() -> void
+static EasyChunkUpload.DependencyInjection.AddEasyChunkUpload(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<EasyChunkUpload.UploadOptions!>? configure = null) -> EasyChunkUpload.Abstractions.IEasyChunkUploadBuilder!

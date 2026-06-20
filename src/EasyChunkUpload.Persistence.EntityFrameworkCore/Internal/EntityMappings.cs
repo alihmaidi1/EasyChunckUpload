@@ -11,23 +11,23 @@ internal static class EntityMappings
         entity.TotalChunks,
         entity.Sha256,
         entity.State,
-        entity.CreatedAt,
-        entity.UpdatedAt,
-        entity.ExpiresAt,
+        ToDateTimeOffset(entity.CreatedAt),
+        ToDateTimeOffset(entity.UpdatedAt),
+        ToDateTimeOffset(entity.ExpiresAt),
         entity.StorageKey,
-        entity.CompletedAt,
+        ToDateTimeOffset(entity.CompletedAt),
         entity.LeaseOwner,
         entity.LeasePurpose,
-        entity.LeaseExpiresAt,
+        ToDateTimeOffset(entity.LeaseExpiresAt),
         entity.Version,
-        entity.ArtifactsDeletedAt);
+        ToDateTimeOffset(entity.ArtifactsDeletedAt));
 
     public static UploadChunkRecord ToRecord(this UploadChunkEntity entity) => new(
         entity.UploadId,
         entity.ChunkIndex,
         entity.ContentLength,
         entity.Sha256,
-        entity.CreatedAt);
+        ToDateTimeOffset(entity.CreatedAt));
 
     public static UploadSessionEntity ToEntity(this UploadSessionRecord record) => new()
     {
@@ -37,16 +37,16 @@ internal static class EntityMappings
         TotalChunks = record.TotalChunks,
         Sha256 = record.Sha256,
         State = record.State,
-        CreatedAt = record.CreatedAt,
-        UpdatedAt = record.UpdatedAt,
-        ExpiresAt = record.ExpiresAt,
+        CreatedAt = record.CreatedAt.UtcDateTime,
+        UpdatedAt = record.UpdatedAt.UtcDateTime,
+        ExpiresAt = record.ExpiresAt?.UtcDateTime,
         StorageKey = record.StorageKey,
-        CompletedAt = record.CompletedAt,
+        CompletedAt = record.CompletedAt?.UtcDateTime,
         LeaseOwner = record.LeaseOwner,
         LeasePurpose = record.LeasePurpose,
-        LeaseExpiresAt = record.LeaseExpiresAt,
+        LeaseExpiresAt = record.LeaseExpiresAt?.UtcDateTime,
         Version = record.Version,
-        ArtifactsDeletedAt = record.ArtifactsDeletedAt
+        ArtifactsDeletedAt = record.ArtifactsDeletedAt?.UtcDateTime
     };
 
     public static UploadChunkEntity ToEntity(this UploadChunkRecord record) => new()
@@ -55,6 +55,12 @@ internal static class EntityMappings
         ChunkIndex = record.ChunkIndex,
         ContentLength = record.ContentLength,
         Sha256 = record.Sha256,
-        CreatedAt = record.CreatedAt
+        CreatedAt = record.CreatedAt.UtcDateTime
     };
+
+    private static DateTimeOffset ToDateTimeOffset(DateTime value) =>
+        new(DateTime.SpecifyKind(value, DateTimeKind.Utc));
+
+    private static DateTimeOffset? ToDateTimeOffset(DateTime? value) =>
+        value.HasValue ? ToDateTimeOffset(value.Value) : null;
 }

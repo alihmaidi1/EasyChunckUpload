@@ -44,6 +44,125 @@ public sealed class EntityFrameworkCoordinationTests : IDisposable
         Assert.False(secondAcquired);
     }
 
+    [Fact]
+    public async Task CompletionLease_RenewalPreventsAcquisitionAfterOriginalExpiry()
+    {
+        await using var firstProvider = CreateProvider();
+        await using var secondProvider = CreateProvider();
+        await EnsureDatabaseAsync(firstProvider);
+        var uploadId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+
+        await using (var scope = firstProvider.CreateAsyncScope())
+        {
+            var store = scope.ServiceProvider.GetRequiredService<IUploadSessionStore>();
+            await store.CreateAsync(CreateSession(uploadId, now), CancellationToken.None);
+            var coordinator = scope.ServiceProvider.GetRequiredService<IUploadCompletionCoordinator>();
+            Assert.True(await coordinator.TryAcquireAsync(
+                uploadId,
+                UploadLeasePurpose.Completion,
+                "first",
+                now,
+                TimeSpan.FromMilliseconds(100),
+                CancellationToken.None));
+            Assert.True(await coordinator.TryRenewAsync(
+                uploadId,
+                UploadLeasePurpose.Completion,
+                "first",
+                now.AddMilliseconds(50),
+                TimeSpan.FromMilliseconds(100),
+                CancellationToken.None));
+        }
+
+        await using var secondScope = secondProvider.CreateAsyncScope();
+        var secondCoordinator = secondScope.ServiceProvider.GetRequiredService<IUploadCompletionCoordinator>();
+        var acquired = await secondCoordinator.TryAcquireAsync(
+            uploadId,
+            UploadLeasePurpose.Completion,
+            "second",
+            now.AddMilliseconds(110),
+            TimeSpan.FromMinutes(1),
+            CancellationToken.None);
+
+        Assert.False(acquired);
+    }
+
+    [Fact]
+    public async Task CleanupFinalization_RequiresLeaseOwner()
+    {
+        await using var provider = CreateProvider();
+        await EnsureDatabaseAsync(provider);
+        var uploadId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+
+        await using var scope = provider.CreateAsyncScope();
+        var store = scope.ServiceProvider.GetRequiredService<IUploadSessionStore>();
+        var coordinator = scope.ServiceProvider.GetRequiredService<IUploadCompletionCoordinator>();
+        await store.CreateAsync(CreateSession(uploadId, now), CancellationToken.None);
+        Assert.True(await store.CancelAsync(uploadId, now, CancellationToken.None));
+        Assert.True(await coordinator.TryAcquireAsync(
+            uploadId,
+            UploadLeasePurpose.Cleanup,
+            "owner",
+            now.AddSeconds(1),
+            TimeSpan.FromMinutes(5),
+            CancellationToken.None));
+
+        var wrongOwner = await store.TryMarkArtifactsDeletedAsync(
+            uploadId,
+            "other",
+            now.AddSeconds(2),
+            CancellationToken.None);
+        var correctOwner = await store.TryMarkArtifactsDeletedAsync(
+            uploadId,
+            "owner",
+            now.AddSeconds(2),
+            CancellationToken.None);
+
+        Assert.False(wrongOwner);
+        Assert.True(correctOwner);
+    }
+
+    [Fact]
+    public async Task MetadataPurge_RemovesOnlyExpiredIncompleteSessions()
+    {
+        await using var provider = CreateProvider();
+        await EnsureDatabaseAsync(provider);
+        var uploadId = Guid.NewGuid();
+        var completedId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+
+        await using var scope = provider.CreateAsyncScope();
+        var store = scope.ServiceProvider.GetRequiredService<IUploadSessionStore>();
+        var coordinator = scope.ServiceProvider.GetRequiredService<IUploadCompletionCoordinator>();
+        await store.CreateAsync(CreateSession(uploadId, now), CancellationToken.None);
+        await store.CreateAsync(CreateSession(completedId, now) with
+        {
+            State = UploadState.Completed,
+            ExpiresAt = null,
+            ArtifactsDeletedAt = now.AddDays(-10)
+        }, CancellationToken.None);
+        Assert.True(await store.CancelAsync(uploadId, now.AddDays(-10), CancellationToken.None));
+        Assert.True(await coordinator.TryAcquireAsync(
+            uploadId,
+            UploadLeasePurpose.Cleanup,
+            "owner",
+            now.AddDays(-10).AddSeconds(1),
+            TimeSpan.FromMinutes(5),
+            CancellationToken.None));
+        Assert.True(await store.TryMarkArtifactsDeletedAsync(
+            uploadId,
+            "owner",
+            now.AddDays(-10).AddSeconds(2),
+            CancellationToken.None));
+
+        var deleted = await store.DeleteExpiredMetadataAsync(now.AddDays(-1), 100, CancellationToken.None);
+
+        Assert.Equal(1, deleted);
+        Assert.Null(await store.GetAsync(uploadId, CancellationToken.None));
+        Assert.NotNull(await store.GetAsync(completedId, CancellationToken.None));
+    }
+
     public void Dispose()
     {
         SqliteConnection.ClearAllPools();

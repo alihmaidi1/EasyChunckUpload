@@ -69,6 +69,21 @@ public interface IUploadSessionStore
         CancellationToken cancellationToken);
 
     Task MarkArtifactsDeletedAsync(Guid uploadId, DateTimeOffset deletedAt, CancellationToken cancellationToken);
+
+    async Task<bool> TryMarkArtifactsDeletedAsync(
+        Guid uploadId,
+        string owner,
+        DateTimeOffset deletedAt,
+        CancellationToken cancellationToken)
+    {
+        await MarkArtifactsDeletedAsync(uploadId, deletedAt, cancellationToken);
+        return true;
+    }
+
+    Task<int> DeleteExpiredMetadataAsync(
+        DateTimeOffset deletedBefore,
+        int batchSize,
+        CancellationToken cancellationToken) => Task.FromResult(0);
 }
 
 public interface IUploadCompletionCoordinator
@@ -95,6 +110,14 @@ public interface IUploadCompletionCoordinator
         CancellationToken cancellationToken);
 
     Task<int> RecoverExpiredCompletionLeasesAsync(DateTimeOffset now, CancellationToken cancellationToken);
+
+    Task<bool> TryRenewAsync(
+        Guid uploadId,
+        UploadLeasePurpose purpose,
+        string owner,
+        DateTimeOffset now,
+        TimeSpan duration,
+        CancellationToken cancellationToken) => Task.FromResult(true);
 }
 
 public interface IUploadMaintenanceService

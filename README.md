@@ -26,10 +26,10 @@ EasyChunkUpload is a provider-neutral .NET library for resumable, integrity-chec
 ## Install
 
 ```bash
-dotnet add package EasyChunkUpload --version 2.0.1
-dotnet add package EasyChunkUpload.Storage.FileSystem --version 2.0.1
-dotnet add package EasyChunkUpload.Persistence.EntityFrameworkCore --version 2.0.1
-dotnet add package EasyChunkUpload.Hosting --version 2.0.1
+dotnet add package EasyChunkUpload --version 2.1.0
+dotnet add package EasyChunkUpload.Storage.FileSystem --version 2.1.0
+dotnet add package EasyChunkUpload.Persistence.EntityFrameworkCore --version 2.1.0
+dotnet add package EasyChunkUpload.Hosting --version 2.1.0
 ```
 
 `EasyChunkUpload.Abstractions` is referenced transitively. Install it directly only when building a custom storage or persistence adapter.
@@ -173,6 +173,9 @@ Treat `LeaseUnavailable` as a retryable conflict. A successful repeated chunk up
 | `MaxChunkCount` | 10,000 | Positive |
 | `IncompleteUploadRetention` | 24 hours | Positive |
 | `CompletionLeaseDuration` | 5 minutes | Positive |
+| `CleanupLeaseDuration` | 5 minutes | Positive |
+| `LeaseRenewalInterval` | 1 minute | Positive and shorter than both lease durations |
+| `ExpiredSessionMetadataRetention` | 30 days | Positive |
 
 ### Filesystem options
 
@@ -180,6 +183,7 @@ Treat `LeaseUnavailable` as a retryable conflict. A successful repeated chunk up
 |---|---:|---|
 | `RootPath` | None | Required absolute path |
 | `BufferSize` | 128 KiB | At least 4 KiB |
+| `FlushToDisk` | `true` | Flush completed writes to stable storage before publication |
 
 ### Maintenance options
 
@@ -196,8 +200,10 @@ Override defaults only when application limits, infrastructure throughput, or re
 - Completed files are assembled in numeric chunk order using streaming I/O.
 - Completion validates chunk presence, combined length, and final SHA-256 before committing metadata.
 - Optimistic concurrency and expiring leases prevent concurrent completion or cleanup of the same session.
+- Active completion and cleanup leases are renewed while storage work is running.
 - Expired completion leases can be recovered after an instance failure.
 - Incomplete sessions expire after the configured retention period.
+- Metadata for cleaned incomplete sessions is purged after its configured retention period.
 - Completed files are never deleted automatically.
 
 ## Multi-instance deployment
@@ -233,6 +239,8 @@ The core package depends only on `EasyChunkUpload.Abstractions`. EF Core, filesy
 - Resolve `IUploadMaintenanceService` to run maintenance from your own scheduler instead of the hosted worker.
 
 Read [Architecture](https://github.com/alihmaidi1/EasyChunckUpload/blob/master/docs/architecture.md) before implementing an adapter.
+
+Upgrading an existing EF Core store to 2.1 requires a migration because internal timestamp columns are normalized to UTC `DateTime` for provider-portable comparisons.
 
 ## Upgrade, support, and releases
 

@@ -96,7 +96,7 @@ Temporary files use unique `.part` names inside the destination directory so pub
 
 ## Persistence model
 
-`UploadDbContext` maps two tables:
+`UploadDbContext` maps two tables. Internal timestamps are stored as UTC `DateTime` values so relational providers, including SQLite, can translate expiration and lease comparisons consistently.
 
 - `EasyChunkUploadSessions`: metadata, state, timestamps, expiration, storage key, lease data, and concurrency version.
 - `EasyChunkUploadChunks`: one row per `(UploadId, ChunkIndex)` containing length, SHA-256, and creation time.
@@ -146,6 +146,9 @@ An `IChunkStorage` implementation must:
 - Optimistic concurrency or equivalent compare-and-swap behavior.
 - Exclusive expiring leases for completion and cleanup.
 - Lease-owner validation when committing or releasing work.
+- Lease renewal for completion and cleanup work that can outlive the initial lease.
+- Owner-conditional cleanup finalization.
 - Maintenance candidate selection based on expiration, not creation time alone.
+- Purging of cleaned incomplete-session metadata after the configured retention period.
 
 Test custom adapters with multiple service providers sharing the same real backing services. In-memory tests alone cannot establish distributed-safety guarantees.

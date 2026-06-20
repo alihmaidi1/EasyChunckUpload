@@ -14,8 +14,8 @@ internal static class UploadValidation
 
         if (string.IsNullOrWhiteSpace(request.FileName) ||
             request.FileName.Length > 255 ||
-            request.FileName != Path.GetFileName(request.FileName) ||
-            request.FileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            request.FileName.Any(static character =>
+                character is '/' or '\\' || char.IsControl(character)))
         {
             return new(UploadErrorCode.InvalidRequest, "The file name is invalid.");
         }
@@ -28,6 +28,14 @@ internal static class UploadValidation
         if (request.TotalChunks <= 0 || request.TotalChunks > options.MaxChunkCount)
         {
             return new(UploadErrorCode.InvalidRequest, "The chunk count is outside the configured limits.");
+        }
+
+        var minimumChunks = 1 + ((request.ContentLength - 1) / options.MaxChunkSize);
+        if (request.TotalChunks < minimumChunks || request.TotalChunks > request.ContentLength)
+        {
+            return new(
+                UploadErrorCode.InvalidRequest,
+                "The chunk count cannot represent the declared file size within the configured chunk limit.");
         }
 
         if (!IsSha256(request.Sha256))

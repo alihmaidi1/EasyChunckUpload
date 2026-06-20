@@ -47,6 +47,14 @@ jobs:
           if grep -q "has the following vulnerable packages" <<< "$report"; then
             exit 1
           fi
+      - name: Reject deprecated packages
+        shell: bash
+        run: |
+          report="$(dotnet list EasyChunckUpload.sln package --deprecated)"
+          echo "$report"
+          if grep -q "has the following deprecated packages" <<< "$report"; then
+            exit 1
+          fi
 
   pack:
     name: Verify NuGet packages
@@ -63,6 +71,11 @@ jobs:
       - run: dotnet restore EasyChunckUpload.sln
       - run: dotnet build EasyChunckUpload.sln --configuration Release --no-restore
       - run: dotnet pack EasyChunckUpload.sln --configuration Release --no-build --output artifacts/packages
+      - name: Verify package consumption
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content src/Directory.Build.props)).Project.PropertyGroup.VersionPrefix
+          ./eng/verify-packages.ps1 -PackageDirectory artifacts/packages -Version $version
       - uses: actions/upload-artifact@v7
         with:
           name: nuget-packages

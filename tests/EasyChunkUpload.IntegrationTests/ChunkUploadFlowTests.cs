@@ -58,6 +58,53 @@ public sealed class ChunkUploadFlowTests : IDisposable
         Assert.Equal(Hash(file), completed.Value.Sha256);
     }
 
+    [Fact]
+    public async Task Maintenance_CleansExpiredArtifactsAndLaterPurgesMetadata()
+    {
+        var timeProvider = new ManualTimeProvider(DateTimeOffset.UtcNow);
+        await using var provider = CreateProvider(
+            timeProvider,
+            addMaintenanceWorker: false,
+            options =>
+            {
+                options.IncompleteUploadRetention = TimeSpan.FromHours(1);
+                options.ExpiredSessionMetadataRetention = TimeSpan.FromDays(1);
+            });
+        await EnsureDatabaseAsync(provider);
+        var bytes = "abc"u8.ToArray();
+        var hash = Hash(bytes);
+        Guid uploadId;
+
+        await using (var scope = provider.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IChunkUploadService>();
+            var started = await service.StartAsync(new("expired.bin", bytes.Length, 1, hash));
+            uploadId = started.Value!.UploadId;
+            await service.UploadChunkAsync(uploadId, 0, new MemoryStream(bytes), bytes.Length, hash);
+        }
+
+        timeProvider.Advance(TimeSpan.FromHours(2));
+        await using (var scope = provider.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<IUploadMaintenanceService>().RunOnceAsync(100);
+            var status = await scope.ServiceProvider.GetRequiredService<IChunkUploadService>().GetStatusAsync(uploadId);
+            Assert.True(status.IsSuccess);
+            Assert.Equal(UploadState.Cancelled, status.Value!.State);
+        }
+
+        var chunksDirectory = Path.Combine(_root, "chunks", uploadId.ToString("N"));
+        Assert.False(Directory.Exists(chunksDirectory));
+
+        timeProvider.Advance(TimeSpan.FromDays(2));
+        await using (var scope = provider.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<IUploadMaintenanceService>().RunOnceAsync(100);
+            var status = await scope.ServiceProvider.GetRequiredService<IChunkUploadService>().GetStatusAsync(uploadId);
+            Assert.False(status.IsSuccess);
+            Assert.Equal(UploadErrorCode.NotFound, status.Error?.Code);
+        }
+    }
+
     public void Dispose()
     {
         SqliteConnection.ClearAllPools();
@@ -72,14 +119,26 @@ public sealed class ChunkUploadFlowTests : IDisposable
         }
     }
 
-    private ServiceProvider CreateProvider()
+    private ServiceProvider CreateProvider(
+        TimeProvider? timeProvider = null,
+        bool addMaintenanceWorker = true,
+        Action<UploadOptions>? configure = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddEasyChunkUpload()
+        if (timeProvider is not null)
+        {
+            services.AddSingleton(timeProvider);
+        }
+
+        var uploadBuilder = services.AddEasyChunkUpload(configure)
             .UseSharedFileSystem(options => options.RootPath = _root)
-            .UseEntityFrameworkStore(options => options.UseSqlite($"Data Source={_databasePath}"))
-            .AddUploadMaintenanceWorker();
+            .UseEntityFrameworkStore(options => options.UseSqlite($"Data Source={_databasePath}"));
+        if (addMaintenanceWorker)
+        {
+            uploadBuilder.AddUploadMaintenanceWorker();
+        }
+
         return services.BuildServiceProvider(new ServiceProviderOptions
         {
             ValidateOnBuild = true,
@@ -95,4 +154,13 @@ public sealed class ChunkUploadFlowTests : IDisposable
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+
+    private sealed class ManualTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        private DateTimeOffset _utcNow = utcNow;
+
+        public override DateTimeOffset GetUtcNow() => _utcNow;
+
+        public void Advance(TimeSpan duration) => _utcNow = _utcNow.Add(duration);
+    }
 }

@@ -4,6 +4,30 @@ All notable changes to this project are documented in this file. The project fol
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-06-20
+
+### Added
+
+- Renewable completion and cleanup leases for long-running storage operations.
+- Owner-conditional cleanup finalization and incomplete-session metadata retention.
+- Public API baseline analysis and packed-package consumer verification.
+- Metrics for lease renewal, lease loss, recovery, cleanup, metadata purge, and maintenance duration.
+
+### Changed
+
+- Normalized EF Core timestamp columns to UTC `DateTime` for provider-portable comparisons.
+- Rejected upload plans that cannot represent the declared file size.
+- Enabled durable filesystem flushes by default before atomic publication.
+- Removed user filenames from package logs.
+- Expanded concurrency, cleanup, persistence, and filesystem tests.
+
+### Fixed
+
+- Prevented completion and cleanup work from silently outliving their leases.
+- Prevented a stale cleanup worker from clearing another worker's lease.
+- Prevented cleaned incomplete-session metadata from growing without retention.
+- Preserved unexpected EF Core update failures instead of flattening them into state conflicts.
+
 ## [2.0.1] - 2026-06-20
 
 ### Documentation
@@ -40,6 +64,7 @@ All notable changes to this project are documented in this file. The project fol
 - Removed user filenames from physical storage paths.
 - Added dependency vulnerability checks to CI and release workflows.
 
-[Unreleased]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v1.0...v2.0.0
