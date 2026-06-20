@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file. The project fol
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-06-20
+
+### Documentation
+
+- Expanded the consumer quick start, configuration, error model, and operational guidance.
+- Added architecture, adapter-authoring, and Minimal API integration guides.
+
 ## [2.0.0] - 2026-06-20
 
 ### Added
@@ -33,5 +40,6 @@ All notable changes to this project are documented in this file. The project fol
 - Removed user filenames from physical storage paths.
 - Added dependency vulnerability checks to CI and release workflows.
 
-[Unreleased]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/alihmaidi1/EasyChunckUpload/compare/v1.0...v2.0.0

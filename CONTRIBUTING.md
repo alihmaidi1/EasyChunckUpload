@@ -1,49 +1,74 @@
-Thank you for considering contributing to the Easy Chunk Upload ASP.NET Library! Your contributions are what make this project great. Please follow the guidelines below to ensure a smooth contribution process.
+# Contributing to EasyChunkUpload
 
-## How to Contribute
+Thank you for helping improve EasyChunkUpload.
 
-### Reporting Issues
-If you encounter any bugs or have feature requests, please open an issue in the [GitHub Issues] section. Provide as much detail as possible, including:
-- A clear description of the issue or feature request.
-- Steps to reproduce the issue (if applicable).
-- Any relevant error messages or logs.
+## Report an issue
 
-### Code Contributions
-1. **Fork the Repository**: Click the "Fork" button at the top right of the repository page.
-2. **Clone Your Fork**: Clone your forked repository to your local machine:
-   ```bash
-   git clone https://github.com/alihmaidi1/EasyChunckUpload.git
-   ```
-3. **Create a New Branch**: Create a new branch for your feature or bug fix:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-4. **Make Your Changes**: Implement your feature or fix the bug. Ensure that your code follows the project's coding style and conventions.
-5. **Write Tests**: If applicable, add tests for your changes to ensure the library remains stable.
-6. **Commit Your Changes**: Commit your changes with a descriptive message:
-   ```bash
-   git commit -m "Add feature: your feature description"
-   ```
-7. **Push to Your Fork**: Push your changes back to your forked repository:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-8. **Create a Pull Request**: Go to the original repository and click on "New Pull Request." Select your branch and submit the pull request.
+Open a [GitHub issue](https://github.com/alihmaidi1/EasyChunckUpload/issues) with:
 
-### Code Style
-Please adhere to the following coding style guidelines:
-- Use meaningful variable and method names.
-- Write clear and concise comments where necessary.
-- Follow standard C# formatting conventions.
+- The affected package and version
+- Target framework, operating system, database provider, and storage type
+- Minimal reproduction steps
+- Expected and actual behavior
+- Relevant logs with secrets and personal data removed
 
-### Documentation
-If you add new features or make changes to existing functionality, please update the documentation accordingly. A well-documented library helps all users.
+Report security vulnerabilities privately according to [SECURITY.md](SECURITY.md).
 
-## Code of Conduct
-We expect all contributors to adhere to our [Code of Conduct](CODE_OF_CONDUCT.md). Please be respectful and considerate in all interactions.
+## Development setup
 
-## Questions?
-If you have any questions or need clarification on how to contribute, feel free to reach out to [alihmaidi095@gmail.com](mailto:alihmaidi095@gmail.com).
+Prerequisites:
 
-Thank you for your contributions!
+- The .NET SDK versions selected by `global.json`
+- Git
+
+```bash
+git clone https://github.com/alihmaidi1/EasyChunckUpload.git
+cd EasyChunckUpload
+dotnet restore EasyChunckUpload.sln
+dotnet build EasyChunckUpload.sln --configuration Release --no-restore
+dotnet test EasyChunckUpload.sln --configuration Release --no-build
 ```
+
+## Make a change
+
+1. Fork the repository.
+2. Create a focused branch from `master`.
+3. Keep changes scoped to one problem.
+4. Add or update tests for public behavior.
+5. Update documentation when behavior, configuration, or public API changes.
+6. Run the quality checks below.
+7. Open a pull request explaining the problem, design, and verification.
+
+## Quality checks
+
+```bash
+dotnet restore EasyChunckUpload.sln
+dotnet build EasyChunckUpload.sln --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+dotnet test EasyChunckUpload.sln --configuration Release --no-build
+dotnet format EasyChunckUpload.sln --verify-no-changes --no-restore
+dotnet list EasyChunckUpload.sln package --vulnerable --include-transitive
+```
+
+CI runs consumer tests on .NET 8, .NET 9, and .NET 10 and validates the package on Windows and Linux.
+
+## Design guidelines
+
+- Keep the core independent of EF Core, ASP.NET Core, and physical storage.
+- Keep implementation types internal unless consumers must reference or implement them.
+- Preserve cancellation, idempotency, integrity checks, and distributed lease semantics.
+- Avoid adding a public abstraction without a real consumer substitution point.
+- Treat public API changes as compatibility decisions and document them in `CHANGELOG.md`.
+- Add integration tests for storage, persistence, concurrency, or recovery changes.
+
+Read [Architecture](docs/architecture.md) before changing package boundaries or implementing an adapter.
+
+## Documentation style
+
+- Prefer executable examples using the current public API.
+- State defaults, constraints, ownership, and failure behavior explicitly.
+- Use `EasyChunkUpload` for package names and preserve the repository URL spelling `EasyChunckUpload`.
+- Never include real credentials, private paths, or sensitive logs.
+
+## Code of conduct
+
+Participation is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

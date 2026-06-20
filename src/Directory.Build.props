@@ -8,7 +8,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionPrefix>2.0.1</VersionPrefix>
     <Authors>AliHmaidi</Authors>
     <Company>AliHmaidi</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>chunk-upload;resumable-upload;aspnetcore;dotnet;streaming</PackageTags>
-    <PackageReleaseNotes>EasyChunkUpload 2.0 introduces provider-neutral orchestration, required SHA-256 integrity, shared-filesystem storage, EF Core coordination, and multi-instance completion leases.</PackageReleaseNotes>
+    <PackageReleaseNotes>EasyChunkUpload 2.0.1 expands the quick start, Minimal API guidance, architecture documentation, adapter rules, migration steps, and operational security guidance.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
