@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>EasyChunkUpload.Hosting</PackageId>
+    <Description>Hosted maintenance worker for EasyChunkUpload.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyChunkUpload.Abstractions\EasyChunkUpload.Abstractions.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+</Project>

@@ -1,25 +1,21 @@
-# Reporting Security Vulnerabilities
+# Security Policy
 
-## Introduction
-To ensure the security of our project, we welcome reports of any security vulnerabilities that may affect users or data. We appreciate the community's efforts in helping us improve security.
+## Supported versions
 
-## How to Report Security Vulnerabilities
+| Version | Supported |
+|---|---|
+| 2.x | Yes |
+| 1.x | No |
 
-### 1. Recommended Channels
-- **Email:** You can send details of the vulnerability to [alihmaidi095@gmail.com](mailto:alihmaidi095@gmail.com).
-- **Ticket System:** If you have access, you can report through our ticketing system.
+Security fixes are released as new 2.x NuGet versions. Version 1.x is unsupported because its upload, cleanup, and concurrency model has been replaced.
 
-### 2. Required Information
-When reporting a security vulnerability, please include the following information:
-- **Vulnerability Description:** A comprehensive explanation of the vulnerability and how it can be exploited.
-- **Reproduction Steps:** Clear steps to reproduce the vulnerability.
-- **Impact of the Vulnerability:** Describe how the vulnerability could affect users or the system.
-- **Date of Discovery:** When you discovered the vulnerability.
+## Reporting a vulnerability
 
-### 3. Handling Policy
-- We will review all reports as soon as possible.
-- We will work on fixing discovered vulnerabilities and keep you informed of our progress.
-- The information provided will be kept confidential.
+Do not open a public issue for undisclosed vulnerabilities. Email `alihmaidi095@gmail.com` with:
 
-## Final Notes
-We appreciate your cooperation in helping to keep our project secure. If you have any questions, please feel free to contact us through the channels mentioned above.
+- A description of the vulnerability and affected package version
+- Reproduction steps or a minimal proof of concept
+- Expected impact
+- Any suggested mitigation
+
+Reports will be acknowledged and investigated before public disclosure.

@@ -1,163 +1,136 @@
-# ChunkUpload Service
+# EasyChunkUpload 2.0
 
-[![NuGet Version](https://img.shields.io/nuget/v/EasyChunkUpload.svg?style=flat-square)](https://www.nuget.org/api/v2/package/EasyChunkUpload)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![.NET Core](https://img.shields.io/badge/.NET-9.0%2B-blue.svg?style=flat-square)](https://dotnet.microsoft.com/)
+[![CI](https://github.com/alihmaidi1/EasyChunckUpload/actions/workflows/ci.yml/badge.svg)](https://github.com/alihmaidi1/EasyChunckUpload/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/EasyChunkUpload.svg)](https://www.nuget.org/packages/EasyChunkUpload)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/EasyChunkUpload.svg)](https://www.nuget.org/packages/EasyChunkUpload)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A robust implementation for handling large file uploads using chunking strategy with resumable capabilities and concurrent processing support.
+EasyChunkUpload is a provider-neutral .NET library for resumable, integrity-checked chunk uploads. It separates upload orchestration, metadata persistence, physical storage, and background maintenance so applications can replace infrastructure without changing the core workflow.
 
-## Table of Contents
-- [Features](#features)
-- [Installation](#installation)
-- [Requirements](#requirements)
-- [Quick Start](#quick-start)
-- [Configuration](#configuration)
-- [API Documentation](#api-documentation)
-- [Performance](#performance)
-- [Contributing](#contributing)
-- [License](#license)
+## Requirements
 
-## Features <a name="features"></a>
-- 🚀 **Resumable Uploads** - Continue interrupted uploads
-- ⚡ **Chunk Validation** - Automatic chunk order verification
-- 🔒 **Concurrency Control** - Thread-safe operations with SemaphoreSlim
-- 📁 **Atomic Merging** - Temp file strategy for data integrity
-- 📊 **Progress Tracking** - Real-time upload status monitoring
-- 🧹 **Auto-Cleanup** - Configurable temp file retention
+- .NET 8 or later
+- A shared relational database for multi-instance deployments
+- A shared filesystem mounted by every application instance
 
+## Packages
 
-## Installation <a name="installation"></a>
 ```bash
-# Package Manager
-Install-Package  EasyChunkUpload 
-
-# .NET CLI
-dotnet add package  EasyChunkUpload 
-```
-# Requirements <a name="requirements"></a>
-- .NET 9.0 SDK or later
--  Microsoft.EntityFrameworkCore (>= 9.0.1)
--   Microsoft.Extensions.DependencyInjection (>= 9.0.1)
--    Microsoft.Extensions.Hosting (>= 9.0.1) 
-
-## Quick Start <a name="quick-start"></a>
- **1. Configure Services**
-```public void ConfigureServices(IServiceCollection services)
-{
-    services.AddEasyChunkUploadConfiguration(new ChunkUploadSettings{
-
-          TempFolder = "your_temp_folder",
-          CleanupInterval= 60 * 60 * 24, //in seconds
-          CompletedFilesExpiration= 60 * 60 // in seconds
-  
-    });
-    
-    // Add other dependencies
-}
-```
-**2. add to dbcontext**
-```dbcontext{
-dbset<filemodel> filemodel{get;};
-}
+dotnet add package EasyChunkUpload --version 2.0.0
+dotnet add package EasyChunkUpload.Storage.FileSystem --version 2.0.0
+dotnet add package EasyChunkUpload.Persistence.EntityFrameworkCore --version 2.0.0
+dotnet add package EasyChunkUpload.Hosting --version 2.0.0
 ```
 
- **3. Basic Usage Example**
-```public class UploadController : ControllerBase
-{
-    private readonly IChunkUpload _chunkUpload;
+`EasyChunkUpload.Abstractions` is referenced transitively and is available separately for custom adapters.
 
-    public UploadController(IChunkUpload chunkUpload)
+## Registration
+
+```csharp
+using EasyChunkUpload;
+using EasyChunkUpload.Hosting;
+using EasyChunkUpload.Persistence.EntityFrameworkCore;
+using EasyChunkUpload.Storage.FileSystem;
+using Microsoft.EntityFrameworkCore;
+
+builder.Services
+    .AddEasyChunkUpload(options =>
     {
-        _chunkUpload = chunkUpload;
-    }
-
-    [HttpPost("start")]
-    public async Task<IActionResult> StartUpload([FromBody] FileInfoModel model)
+        options.MaxFileSize = 10L * 1024 * 1024 * 1024;
+        options.MaxChunkSize = 64L * 1024 * 1024;
+        options.MaxChunkCount = 10_000;
+    })
+    .UseSharedFileSystem(options =>
     {
-        var fileId = await _chunkUpload.StartUploadAsync(model.FileName);
-        return Ok(new { FileId = fileId });
-    }
-}
+        options.RootPath = builder.Configuration["ChunkUpload:RootPath"]!;
+    })
+    .UseEntityFrameworkStore(options =>
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ChunkUploads"));
+    })
+    .AddUploadMaintenanceWorker();
 ```
-### Option Configuration(ChunkUploadSettings) <a name="configuration"></a>
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `TempFolder` | `string` | **Required** | Temporary storage directory path for chunks |
-| `CleanupInterval` | `int` | `3600` | Temp files cleanup interval (seconds) |
-| `CompletedFilesExpiration` | `int` | `60*60*24*7` | how Many (Seconds) time File While be expired after upload lastest chunk  |
 
+Use a shared path such as a mounted network volume when the application runs on multiple instances. Local instance storage does not provide multi-instance guarantees.
 
-## API Documentation <a name="api-documentation"></a>
-Core Methods
+## Database schema
+
+The package exposes `UploadDbContext` and leaves provider selection and migrations to the consuming application.
+
+```bash
+dotnet ef migrations add EasyChunkUploadV2 \
+  --context UploadDbContext \
+  --output-dir Data/Migrations/EasyChunkUpload
+
+dotnet ef database update --context UploadDbContext
 ```
-public interface IChunkUpload
-{
 
-    /// <summary>Initializes new upload session</summary>
-    Task<Guid> StartUploadAsync(string fileName);
+## Upload flow
 
-    /// <summary>Retrieves last uploaded chunk number</summary>
-    Task<ChunkResponse<int>> GetLastChunk(Guid fileId);
+Chunk indexes are zero-based. SHA-256 values must contain exactly 64 hexadecimal characters.
 
-    /// <summary>Processes chunk from Stream source</summary>
-    Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber, Stream fileContent);
+```csharp
+var started = await uploadService.StartAsync(
+    new StartUploadRequest(
+        FileName: "archive.zip",
+        ContentLength: fileLength,
+        TotalChunks: totalChunks,
+        Sha256: fileSha256),
+    cancellationToken);
 
-    /// <summary>Processes chunk from byte array</summary>
-    Task<ChunkResponse<Object>> UploadChunkAsync(Guid fileId, int chunkNumber,byte[] fileContent);
+var uploadId = started.Value!.UploadId;
 
-    /// <summary>Finalizes upload and merges chunks</summary>
-    Task<ChunkResponse<string>> ChunkUploadCompleted(Guid fileId);
+await uploadService.UploadChunkAsync(
+    uploadId,
+    chunkIndex,
+    chunkStream,
+    chunkLength,
+    chunkSha256,
+    cancellationToken);
 
-    /// <summary>Identifies missing chunks in sequence</summary>
-    Task<ChunkResponse<List<int>>> GetLostChunkNumber(Guid fileId);
-
-    /// <summary>Cancels active upload session</summary>
-    Task<ChunkResponse<bool>> CancelUploadAsync(Guid fileId);
-
-}
+var completed = await uploadService.CompleteAsync(uploadId, cancellationToken);
+var storageKey = completed.Value!.StorageKey;
 ```
-Response Model
-```
-public class ChunkResponse<T>
-{
-    /// <summary>Detailed message for failures or success</summary>
-    public string Message{get;set;}
 
-    /// <summary>Operation  status</summary>
-    public bool Status{get;set;}
+The completed result returns a storage key, never a machine-local path. The original file name is metadata and is not used to construct physical storage paths.
 
-    /// <summary>Result payload</summary>
-    public T Data {get;set;}
-    
-}
-```
-## Performance <a name="performance"></a>
-Optimization Tips :
+## Guarantees
 
- **Chunk Sizes**: Use 5-10MB chunks for optimal throughput
- 
- **File Locking**: Monitor SemaphoreSlim usage
+- Required SHA-256 validation for every chunk and the assembled file
+- Idempotent retries for matching chunks
+- Conflict detection when the same chunk index contains different data
+- Atomic chunk and completed-file publication
+- Numeric chunk ordering for any supported chunk count
+- Optimistic concurrency and completion leases across application instances
+- Scoped EF Core services and scoped background maintenance work
+- Cancellation support for all public operations
 
+## Operational defaults
 
+| Setting | Default |
+|---|---:|
+| Maximum file size | 10 GiB |
+| Maximum chunk size | 64 MiB |
+| Maximum chunk count | 10,000 |
+| Incomplete upload retention | 24 hours |
+| Completion lease | 5 minutes |
+| Maintenance interval | 15 minutes |
+| Filesystem buffer | 128 KiB |
 
- ## Contributing <a name="contributing"></a>
-    Fork the repository
+Completed files are not deleted automatically. The application owns their retention policy.
 
-    Create feature branch:
-    git checkout -b feature/your-feature
+## HTTP and security
 
-    Commit changes:
-    git commit -m 'Add awesome feature'
+EasyChunkUpload does not expose HTTP endpoints or perform authorization. The consuming application must authenticate callers, authorize access to upload IDs, apply request limits, and avoid exposing storage paths.
 
-    Push to branch:
-    git push origin feature/your-feature
+## Upgrading from 1.x
 
-    Open a Pull Request
-    
- ## License <a name="license"></a>
+Version 2.0 is intentionally breaking and does not migrate active 1.x sessions. Read [MIGRATION.md](MIGRATION.md) before upgrading.
 
-MIT License - See LICENSE for full text.
+## Versioning and releases
 
-📫 Contact: [Ali Hmaidi] - alihmaidi095@gmail.com
+The project follows Semantic Versioning and records changes in [CHANGELOG.md](CHANGELOG.md). Releases are created from `vMAJOR.MINOR.PATCH` tags after CI, tests, package validation, and dependency vulnerability checks succeed. Maintainer instructions are available in [RELEASING.md](RELEASING.md).
 
-🔗 Repository: https://github.com/alihmaidi1/EasyChunckUpload
+## License
+
+MIT

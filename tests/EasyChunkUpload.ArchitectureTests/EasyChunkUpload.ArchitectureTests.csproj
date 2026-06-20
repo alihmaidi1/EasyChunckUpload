@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EasyChunkUpload\EasyChunkUpload.csproj" />
+    <ProjectReference Include="..\..\src\EasyChunkUpload.Storage.FileSystem\EasyChunkUpload.Storage.FileSystem.csproj" />
+    <ProjectReference Include="..\..\src\EasyChunkUpload.Persistence.EntityFrameworkCore\EasyChunkUpload.Persistence.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\EasyChunkUpload.Hosting\EasyChunkUpload.Hosting.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

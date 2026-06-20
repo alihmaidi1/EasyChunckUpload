@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>EasyChunkUpload.Storage.FileSystem</PackageId>
+    <Description>Shared filesystem storage adapter for EasyChunkUpload.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyChunkUpload.Abstractions\EasyChunkUpload.Abstractions.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>EasyChunkUpload</PackageId>
+    <Description>Provider-neutral orchestration for resilient chunked uploads.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasyChunkUpload.Abstractions\EasyChunkUpload.Abstractions.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+</Project>

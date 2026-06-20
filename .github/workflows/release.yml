@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    environment: nuget.org
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+      - name: Validate release tag
+        id: version
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          expected="$(sed -n 's:.*<VersionPrefix>\(.*\)</VersionPrefix>.*:\1:p' src/Directory.Build.props)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag $GITHUB_REF_NAME is not a valid semantic version."
+            exit 1
+          fi
+          if [[ "$version" != "$expected" ]]; then
+            echo "Tag version $version does not match VersionPrefix $expected."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - run: dotnet restore EasyChunckUpload.sln
+      - run: dotnet build EasyChunckUpload.sln --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+      - run: dotnet test EasyChunckUpload.sln --configuration Release --no-build
+      - name: Reject vulnerable packages
+        shell: bash
+        run: |
+          report="$(dotnet list EasyChunckUpload.sln package --vulnerable --include-transitive)"
+          echo "$report"
+          if grep -q "has the following vulnerable packages" <<< "$report"; then
+            exit 1
+          fi
+      - run: dotnet pack EasyChunckUpload.sln --configuration Release --no-build --output artifacts/packages -p:PackageVersion=${{ steps.version.outputs.version }}
+      - name: Publish packages to NuGet.org
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          packages=(
+            EasyChunkUpload.Abstractions
+            EasyChunkUpload
+            EasyChunkUpload.Storage.FileSystem
+            EasyChunkUpload.Persistence.EntityFrameworkCore
+            EasyChunkUpload.Hosting
+          )
+          for package in "${packages[@]}"; do
+            dotnet nuget push "artifacts/packages/${package}.${{ steps.version.outputs.version }}.nupkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" artifacts/packages/*.*nupkg \
+            --title "EasyChunkUpload ${{ steps.version.outputs.version }}" \
+            --generate-notes \
+            --verify-tag

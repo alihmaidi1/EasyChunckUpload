@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+      - run: dotnet restore EasyChunckUpload.sln
+      - run: dotnet build EasyChunckUpload.sln --configuration Release --no-restore
+      - run: dotnet test EasyChunckUpload.sln --configuration Release --no-build
+      - run: dotnet format EasyChunckUpload.sln --verify-no-changes --no-restore
+
+  security:
+    name: Dependency vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore EasyChunckUpload.sln
+      - name: Reject vulnerable packages
+        shell: bash
+        run: |
+          report="$(dotnet list EasyChunckUpload.sln package --vulnerable --include-transitive)"
+          echo "$report"
+          if grep -q "has the following vulnerable packages" <<< "$report"; then
+            exit 1
+          fi
+
+  pack:
+    name: Verify NuGet packages
+    needs: [build-and-test, security]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+      - run: dotnet restore EasyChunckUpload.sln
+      - run: dotnet build EasyChunckUpload.sln --configuration Release --no-restore
+      - run: dotnet pack EasyChunckUpload.sln --configuration Release --no-build --output artifacts/packages
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: artifacts/packages/*.*nupkg
+          if-no-files-found: error
