@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -50,10 +51,13 @@ jobs:
             exit 1
           fi
       - run: dotnet pack EasyChunckUpload.sln --configuration Release --no-build --output artifacts/packages -p:PackageVersion=${{ steps.version.outputs.version }}
+      - name: NuGet login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: AliHmaidi
       - name: Publish packages to NuGet.org
         shell: bash
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           packages=(
             EasyChunkUpload.Abstractions
@@ -64,7 +68,7 @@ jobs:
           )
           for package in "${packages[@]}"; do
             dotnet nuget push "artifacts/packages/${package}.${{ steps.version.outputs.version }}.nupkg" \
-              --api-key "$NUGET_API_KEY" \
+              --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate
           done

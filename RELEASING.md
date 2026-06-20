@@ -18,8 +18,7 @@ The `Release` workflow validates the tag, repeats all quality gates, publishes p
 ## Required repository configuration
 
 - GitHub environment: `nuget.org`
-- GitHub Actions secret: `NUGET_API_KEY`
-- The API key must be scoped to the five `EasyChunkUpload` package IDs when NuGet.org package ownership permits it.
+- NuGet.org Trusted Publishing policy owned by `AliHmaidi` for repository `alihmaidi1/EasyChunckUpload`, workflow `release.yml`, and environment `nuget.org`.
 - Require the `CI` workflow before merging changes into `master`.
 
-Never commit API keys or place them in local configuration files.
+The release workflow uses GitHub OIDC through `NuGet/login@v1` to obtain a short-lived NuGet API key. No long-lived NuGet secret is stored in GitHub or local configuration.
